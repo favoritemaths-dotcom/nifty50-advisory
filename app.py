@@ -134,7 +134,8 @@ stock_row = df_all[df_all["Symbol"] == selected_stock].iloc[0]
 
 st.subheader(f"{stock_row['Company']} ({selected_stock})")
 st.write(f"**Sector:** {stock_row['Sector']}")
-st.write(f"**CMP:** ₹{stock_row['CMP (₹)']}")
+cmp_value = st.session_state.price_cache.get(selected_stock)
+st.write(f"**CMP:** ₹{cmp_value if cmp_value is not None else '—'}")
 
 # ==================================================
 # Fetch Detailed Fundamentals (10 Metrics)
