@@ -62,12 +62,11 @@ def fetch_nse_prices(symbols):
         try:
             encoded_symbol = urllib.parse.quote(symbol, safe="")
             if symbol == "TATAMOTORS":
-        url = f"https://www.nseindia.com/api/quote-equity?symbol={encoded_symbol}&series=EQ"
-else:
-        url = f"https://www.nseindia.com/api/quote-equity?symbol={encoded_symbol}"
+                url = f"https://www.nseindia.com/api/quote-equity?symbol={encoded_symbol}&series=EQ"
+            else:
+                url = f"https://www.nseindia.com/api/quote-equity?symbol={encoded_symbol}"
             r = session.get(url, headers=HEADERS, timeout=10)
             data = r.json()
-
             price_info = data.get("priceInfo", {})
             last_price = price_info.get("lastPrice")
             change_pct = price_info.get("pChange")
