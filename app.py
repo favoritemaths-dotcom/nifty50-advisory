@@ -42,6 +42,25 @@ selected_stock = st.sidebar.selectbox(
     "Select Stock",
     df["Symbol"].tolist()
 )
+st.sidebar.markdown("---")
+st.sidebar.header("Investor Profile")
+
+investment_amount = st.sidebar.number_input(
+    "Investment Amount (₹)",
+    min_value=10000,
+    step=10000,
+    value=100000
+)
+
+time_horizon = st.sidebar.selectbox(
+    "Time Horizon",
+    ["Short-term (<1 year)", "Medium-term (1–3 years)", "Long-term (3+ years)"]
+)
+
+risk_profile = st.sidebar.selectbox(
+    "Risk Profile",
+    ["Conservative", "Moderate", "Aggressive"]
+)
 
 # ==================================================
 # Yahoo symbol normalization (minimal & stable)
