@@ -2,66 +2,104 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 
+# --------------------------------------------------
+# Page configuration
+# --------------------------------------------------
 st.set_page_config(
     page_title="Nifty50 AI Portfolio Advisor",
     layout="wide"
 )
 
 st.title("📊 Nifty 50 – AI Portfolio Advisory")
-st.caption("Live prices | Private decision-support tool")
+st.caption("Live prices | Private decision-support tool (India)")
 
-# ---------- Load Nifty 50 list ----------
+# --------------------------------------------------
+# Yahoo Finance symbol overrides (IMPORTANT)
+# --------------------------------------------------
+YAHOO_SYMBOL_MAP = {
+    "M&M": "MM",                # Mahindra & Mahindra
+    "RELIANCE": "RIL",          # Reliance Industries
+    "TATAMOTORS": "TATAMOTORS", # Tata Motors
+    "BAJAJ-AUTO": "BAJAJ-AUTO",
+    "LTIM": "LTIM",
+    "SBICARD": "SBICARD"
+}
+
+# --------------------------------------------------
+# Load Nifty 50 stock list
+# --------------------------------------------------
 @st.cache_data
 def load_nifty50():
     return pd.read_csv("data/nifty50_list.csv")
 
 df = load_nifty50()
 
-# ---------- Sidebar filter ----------
+# --------------------------------------------------
+# Sidebar – Sector Filter
+# --------------------------------------------------
 st.sidebar.header("Filters")
 
-sector = st.sidebar.selectbox(
+selected_sector = st.sidebar.selectbox(
     "Select Sector",
     ["All"] + sorted(df["Sector"].unique().tolist())
 )
 
-if sector != "All":
-    df = df[df["Sector"] == sector]
+if selected_sector != "All":
+    df = df[df["Sector"] == selected_sector]
 
-# ---------- Fetch live prices ----------
+# --------------------------------------------------
+# Fetch live prices from Yahoo Finance
+# --------------------------------------------------
 @st.cache_data(ttl=300)  # refresh every 5 minutes
 def fetch_prices(symbols):
-    prices = []
+    cmp_list = []
+    change_list = []
+
     for symbol in symbols:
+        yahoo_symbol = YAHOO_SYMBOL_MAP.get(symbol, symbol)
+        ticker = yf.Ticker(yahoo_symbol + ".NS")
+
         try:
-            yahoo_symbol = YAHOO_SYMBOL_MAP.get(symbol, symbol)
-stock = yf.Ticker(yahoo_symbol + ".NS")
-            data = stock.history(period="1d")
-            if not data.empty:
-                close = round(data["Close"].iloc[-1], 2)
-                open_price = round(data["Open"].iloc[-1], 2)
-                change_pct = round(((close - open_price) / open_price) * 100, 2)
+            data = ticker.history(period="2d")
+            if data.empty:
+                cmp_list.append(None)
+                change_list.append(None)
             else:
-                close, change_pct = None, None
-        except:
-            close, change_pct = None, None
+                close_price = round(data["Close"].iloc[-1], 2)
+                open_price = round(data["Open"].iloc[-1], 2)
+                change_pct = round(
+                    ((close_price - open_price) / open_price) * 100, 2
+                )
 
-        prices.append((close, change_pct))
+                cmp_list.append(close_price)
+                change_list.append(change_pct)
 
-    return prices
+        except Exception:
+            cmp_list.append(None)
+            change_list.append(None)
+
+    return cmp_list, change_list
 
 symbols = df["Symbol"].tolist()
-price_data = fetch_prices(symbols)
+cmp, change_pct = fetch_prices(symbols)
 
-df["CMP (₹)"] = [p[0] for p in price_data]
-df["Change %"] = [p[1] for p in price_data]
+df["CMP (₹)"] = cmp
+df["Change %"] = change_pct
 
-# ---------- Styling ----------
+# --------------------------------------------------
+# Styling for % change
+# --------------------------------------------------
 def color_change(val):
     if pd.isna(val):
         return ""
-    return "color: green" if val > 0 else "color: red"
+    elif val > 0:
+        return "color: green"
+    else:
+        return "color: red"
 
+# --------------------------------------------------
+# Display table
+# --------------------------------------------------
 st.subheader(f"Showing {len(df)} Nifty 50 Stocks")
 
 st.dataframe(
@@ -70,4 +108,4 @@ st.dataframe(
     hide_index=True
 )
 
-st.caption("🟢 Prices from Yahoo Finance | Refreshes every 5 minutes")
+st.caption("🟢 Data source: Yahoo Finance | Refreshes every 5 minutes")
