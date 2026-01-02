@@ -21,7 +21,8 @@ st.caption("Private decision-support tool | Stable cached data")
 def load_nifty50():
     return pd.read_csv("data/nifty50_list.csv")
 
-df = load_nifty50()
+df_all = load_nifty50()
+df = df_all.copy()
 
 # ==================================================
 # Sidebar – Filters
