@@ -130,7 +130,7 @@ st.dataframe(
 st.markdown("---")
 st.header("📌 Stock Detail View")
 
-stock_row = df[df["Symbol"] == selected_stock].iloc[0]
+stock_row = df_all[df_all["Symbol"] == selected_stock].iloc[0]
 
 st.subheader(f"{stock_row['Company']} ({selected_stock})")
 st.write(f"**Sector:** {stock_row['Sector']}")
