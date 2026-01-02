@@ -35,6 +35,12 @@ selected_sector = st.sidebar.selectbox(
 
 if selected_sector != "All":
     df = df[df["Sector"] == selected_sector]
+    st.sidebar.markdown("---")
+
+selected_stock = st.sidebar.selectbox(
+    "Select Stock",
+    df["Symbol"].tolist()
+)
 
 # --------------------------------------------------
 # Yahoo symbol normalization (minimal & stable)
@@ -102,6 +108,14 @@ st.dataframe(
     use_container_width=True,
     hide_index=True
 )
+st.markdown("---")
+st.header("📌 Stock Detail View")
+
+stock_row = df[df["Symbol"] == selected_stock].iloc[0]
+
+st.subheader(f"{stock_row['Company']} ({selected_stock})")
+st.write(f"**Sector:** {stock_row['Sector']}")
+st.write(f"**CMP:** ₹{stock_row['CMP (₹)']}")
 
 # --------------------------------------------------
 # Footer
