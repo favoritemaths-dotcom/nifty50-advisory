@@ -34,7 +34,8 @@ def fetch_prices(symbols):
     prices = []
     for symbol in symbols:
         try:
-            stock = yf.Ticker(symbol + ".NS")
+            yahoo_symbol = YAHOO_SYMBOL_MAP.get(symbol, symbol)
+stock = yf.Ticker(yahoo_symbol + ".NS")
             data = stock.history(period="1d")
             if not data.empty:
                 close = round(data["Close"].iloc[-1], 2)
