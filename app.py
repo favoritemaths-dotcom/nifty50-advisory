@@ -268,6 +268,30 @@ def fetch_company_news(company_name):
 
     return news_items
 
+from pypdf import PdfReader
+
+
+def extract_text_from_pdf(uploaded_file, max_pages=10):
+    """
+    Extract text from first N pages of a PDF
+    """
+    try:
+        reader = PdfReader(uploaded_file)
+        text = ""
+
+        pages_to_read = min(len(reader.pages), max_pages)
+
+        for i in range(pages_to_read):
+            page = reader.pages[i]
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
+
+        return text.strip()
+
+    except Exception:
+        return ""
+
 fund = fetch_fundamentals(selected_stock)
 
 # ==================================================
