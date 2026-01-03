@@ -313,6 +313,29 @@ else:
             f"  [Read article]({item['link']})"
         )
 
+# ==============================
+# COMPANY REPORTS (PDF UPLOAD)
+# ==============================
+st.markdown("### 📑 Company Reports")
+
+annual_report = st.file_uploader(
+    "Upload Annual Report (PDF)",
+    type=["pdf"],
+    key=f"annual_{selected_stock}"
+)
+
+quarterly_report = st.file_uploader(
+    "Upload Latest Quarterly Report (PDF)",
+    type=["pdf"],
+    key=f"quarterly_{selected_stock}"
+)
+
+if annual_report:
+    st.success("Annual Report uploaded successfully.")
+
+if quarterly_report:
+    st.success("Quarterly Report uploaded successfully.")
+
 # ==================================================
 # Footer
 # ==================================================
