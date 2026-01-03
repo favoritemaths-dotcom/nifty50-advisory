@@ -237,12 +237,12 @@ def fetch_company_news(company_name):
     Fetch recent company news using Google News RSS
     """
     query = f"{company_name} stock India"
-encoded_query = urllib.parse.quote(query)
+    encoded_query = urllib.parse.quote(query)
 
-rss_url = (
-    "https://news.google.com/rss/search?"
-    f"q={encoded_query}&hl=en-IN&gl=IN&ceid=IN:en"
-)
+    rss_url = (
+        "https://news.google.com/rss/search?"
+        f"q={encoded_query}&hl=en-IN&gl=IN&ceid=IN:en"
+    )
 
     feed = feedparser.parse(rss_url)
 
