@@ -157,9 +157,16 @@ for sym in symbols:
 if fresh_prices:
     st.session_state.last_updated = datetime.now()
 
-df["CMP (₹)"] = df["Symbol"].apply(
-    lambda x: st.session_state.price_cache.get(x)
-)
+cmp_sources = {}
+
+def resolve_cmp(symbol):
+    price, source = get_cmp(symbol)
+    if price:
+        st.session_state.price_cache[symbol] = price
+    cmp_sources[symbol] = source
+    return price
+
+df["CMP (₹)"] = df["Symbol"].apply(resolve_cmp)
 
 # ==================================================
 # MAIN TABLE – Nifty 50 List
