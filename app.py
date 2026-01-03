@@ -73,6 +73,52 @@ YAHOO_MAP = {
     "TATAMOTORS": "TATAMOTORS",
     "RELIANCE": "RELIANCE"
 }
+HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "application/json",
+    "Referer": "https://www.nseindia.com/"
+}
+
+def get_cmp_from_yahoo(symbol):
+    try:
+        yahoo_symbol = YAHOO_MAP.get(symbol, symbol)
+        ticker = yf.Ticker(yahoo_symbol + ".NS")
+        price = ticker.fast_info.get("lastPrice")
+        return round(price, 2) if price else None
+    except Exception:
+        return None
+
+
+def get_cmp_from_nse(symbol):
+    try:
+        encoded = urllib.parse.quote(symbol, safe="")
+        url = f"https://www.nseindia.com/api/quote-equity?symbol={encoded}"
+        session = requests.Session()
+        session.get("https://www.nseindia.com", headers=HEADERS, timeout=5)
+        r = session.get(url, headers=HEADERS, timeout=5)
+        data = r.json()
+        return data.get("priceInfo", {}).get("lastPrice")
+    except Exception:
+        return None
+
+
+def get_cmp(symbol):
+    # 1️⃣ Yahoo (primary)
+    price = get_cmp_from_yahoo(symbol)
+    if price:
+        return price, "Yahoo"
+
+    # 2️⃣ NSE (fallback)
+    price = get_cmp_from_nse(symbol)
+    if price:
+        return price, "NSE"
+
+    # 3️⃣ Cached value
+    cached = st.session_state.price_cache.get(symbol)
+    if cached:
+        return cached, "Cache"
+
+    return None, "Unavailable"
 
 # ==================================================
 # Session Cache (Last Known Prices)
