@@ -294,6 +294,23 @@ c10, c11 = st.columns(2)
 c10.metric("Revenue Growth (YoY)", f"{round(fund.get('RevenueGrowth')*100,2)}%" if fund.get("RevenueGrowth") else "—")
 c11.metric("EPS Growth (YoY)", f"{round(fund.get('EPSGrowth')*100,2)}%" if fund.get("EPSGrowth") else "—")
 
+# ==============================
+# NEWS & EVENTS
+# ==============================
+st.markdown("### 📰 Recent News & Events")
+
+news_items = fetch_company_news(stock_row["Company"])
+
+if not news_items:
+    st.write("No significant news found in the last 7 days.")
+else:
+    for item in news_items[:5]:
+        st.markdown(
+            f"• **{item['title']}**  \n"
+            f"  _Source: {item['source']} | {item['published']}_  \n"
+            f"  [Read article]({item['link']})"
+        )
+
 # ==================================================
 # Footer
 # ==================================================
