@@ -231,6 +231,41 @@ def fetch_fundamentals(symbol):
     except Exception:
         return {}
 
+@st.cache_data(ttl=1800)  # cache for 30 minutes
+def fetch_company_news(company_name):
+    """
+    Fetch recent company news using Google News RSS
+    """
+    query = f"{company_name} stock India"
+    rss_url = (
+        "https://news.google.com/rss/search?"
+        f"q={query}&hl=en-IN&gl=IN&ceid=IN:en"
+    )
+
+    feed = feedparser.parse(rss_url)
+
+    news_items = []
+    cutoff_date = datetime.now() - timedelta(days=7)
+
+    for entry in feed.entries[:10]:
+        published = (
+            datetime(*entry.published_parsed[:6])
+            if hasattr(entry, "published_parsed")
+            else None
+        )
+
+        if published and published < cutoff_date:
+            continue
+
+        news_items.append({
+            "title": entry.title,
+            "link": entry.link,
+            "source": entry.source.title if hasattr(entry, "source") else "Unknown",
+            "published": published.strftime("%d %b %Y") if published else ""
+        })
+
+    return news_items
+
 fund = fetch_fundamentals(selected_stock)
 
 # ==================================================
