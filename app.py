@@ -340,6 +340,54 @@ def summarize_report_text(text, report_type="Annual"):
         "outlook": outlook
     }
 
+def summarize_report_text(text, report_type="Annual"):
+    """
+    Structured, rule-based summarization (AI-ready placeholder)
+    """
+    if not text or len(text) < 500:
+        return {
+            "overview": "Insufficient text extracted from report.",
+            "positives": [],
+            "risks": [],
+            "outlook": "Not available"
+        }
+
+    lower_text = text.lower()
+
+    positives = []
+    risks = []
+
+    if "growth" in lower_text or "increase" in lower_text:
+        positives.append("Management reports growth in key areas.")
+
+    if "margin" in lower_text:
+        positives.append("Margins and profitability discussed.")
+
+    if "order" in lower_text or "contract" in lower_text:
+        positives.append("Order wins or contracts mentioned.")
+
+    if "risk" in lower_text or "uncertain" in lower_text:
+        risks.append("Management highlights risks or uncertainties.")
+
+    if "debt" in lower_text or "borrow" in lower_text:
+        risks.append("Debt or borrowing discussed.")
+
+    if "competition" in lower_text:
+        risks.append("Competitive pressures mentioned.")
+
+    outlook = (
+        "Management provides outlook commentary."
+        if "outlook" in lower_text or "guidance" in lower_text
+        else "Outlook not clearly stated."
+    )
+
+    return {
+        "overview": f"{report_type} report text reviewed.",
+        "positives": positives,
+        "risks": risks,
+        "outlook": outlook
+    }
+
 fund = fetch_fundamentals(selected_stock)
 
 # ==================================================
