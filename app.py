@@ -456,6 +456,66 @@ if annual_report:
 if quarterly_report:
     st.success("Quarterly Report uploaded successfully.")
 
+# ==============================
+# REPORT ANALYSIS
+# ==============================
+
+st.markdown("#### 📘 Annual Report Analysis")
+
+if annual_report:
+    annual_text = extract_text_from_pdf(annual_report)
+    annual_summary = summarize_report_text(annual_text, "Annual")
+
+    st.write("**Overview**")
+    st.write(annual_summary["overview"])
+
+    st.write("**Key Positives**")
+    if annual_summary["positives"]:
+        for p in annual_summary["positives"]:
+            st.write(f"• {p}")
+    else:
+        st.write("—")
+
+    st.write("**Key Risks**")
+    if annual_summary["risks"]:
+        for r in annual_summary["risks"]:
+            st.write(f"• {r}")
+    else:
+        st.write("—")
+
+    st.write("**Outlook**")
+    st.write(annual_summary["outlook"])
+else:
+    st.info("Upload an Annual Report PDF to see analysis.")
+
+st.markdown("#### 📄 Quarterly Report Analysis")
+
+if quarterly_report:
+    quarterly_text = extract_text_from_pdf(quarterly_report)
+    quarterly_summary = summarize_report_text(quarterly_text, "Quarterly")
+
+    st.write("**Overview**")
+    st.write(quarterly_summary["overview"])
+
+    st.write("**Key Positives**")
+    if quarterly_summary["positives"]:
+        for p in quarterly_summary["positives"]:
+            st.write(f"• {p}")
+    else:
+        st.write("—")
+
+    st.write("**Key Risks**")
+    if quarterly_summary["risks"]:
+        for r in quarterly_summary["risks"]:
+            st.write(f"• {r}")
+    else:
+        st.write("—")
+
+    st.write("**Outlook**")
+    st.write(quarterly_summary["outlook"])
+else:
+    st.info("Upload a Quarterly Report PDF to see analysis.")
+
 # ==================================================
 # Footer
 # ==================================================
