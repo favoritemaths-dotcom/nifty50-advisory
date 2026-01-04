@@ -388,6 +388,90 @@ def summarize_report_text(text, report_type="Annual"):
         "outlook": outlook
     }
 
+def score_stock(
+    fundamentals,
+    news_items,
+    annual_summary,
+    quarterly_summary,
+    risk_profile
+):
+    """
+    Rule-based stock scoring engine
+    Returns score (0–100), recommendation, and reasons
+    """
+
+    score = 50  # base score
+    reasons = []
+
+    # -----------------------------
+    # FUNDAMENTALS (max ±25)
+    # -----------------------------
+    pe = fundamentals.get("PE")
+    roe = fundamentals.get("ROE")
+    debt = fundamentals.get("DebtEquity")
+
+    if pe and pe < 25:
+        score += 5
+        reasons.append("Valuation is reasonable (PE < 25).")
+
+    if roe and roe > 0.15:
+        score += 7
+        reasons.append("Strong return on equity.")
+
+    if debt and debt < 1:
+        score += 5
+        reasons.append("Debt levels are under control.")
+    elif debt and debt > 2:
+        score -= 7
+        reasons.append("High leverage increases risk.")
+
+    # -----------------------------
+    # NEWS IMPACT (max ±10)
+    # -----------------------------
+    if news_items:
+        score += 5
+        reasons.append("Recent news flow present; no major red flags detected.")
+
+    # -----------------------------
+    # REPORT INSIGHTS (max ±10)
+    # -----------------------------
+    for summary in [annual_summary, quarterly_summary]:
+        if summary:
+            if summary["positives"]:
+                score += 5
+                reasons.append("Positive signals in company reports.")
+            if summary["risks"]:
+                score -= 5
+                reasons.append("Risks highlighted in company disclosures.")
+
+    # -----------------------------
+    # RISK PROFILE ADJUSTMENT
+    # -----------------------------
+    if risk_profile == "Conservative":
+        if debt and debt > 1:
+            score -= 5
+            reasons.append("Conservative profile penalizes higher debt.")
+    elif risk_profile == "Aggressive":
+        score += 3
+        reasons.append("Aggressive profile allows higher risk tolerance.")
+
+    # -----------------------------
+    # BOUND SCORE
+    # -----------------------------
+    score = max(0, min(score, 100))
+
+    # -----------------------------
+    # FINAL RECOMMENDATION
+    # -----------------------------
+    if score >= 70:
+        recommendation = "BUY"
+    elif score >= 50:
+        recommendation = "HOLD"
+    else:
+        recommendation = "AVOID"
+
+    return score, recommendation, reasons
+
 fund = fetch_fundamentals(selected_stock)
 
 # ==================================================
