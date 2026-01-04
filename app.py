@@ -626,6 +626,22 @@ st.write("### Why this recommendation?")
 for r in reasons:
     st.write(f"• {r}")
 
+# ==============================
+# AI ADVISOR EXPLANATION
+# ==============================
+st.markdown("## 🤖 AI Advisor Explanation")
+
+ai_explanation = generate_ai_explanation(
+    selected_stock,
+    score,
+    recommendation,
+    reasons,
+    risk_profile,
+    time_horizon
+)
+
+st.markdown(ai_explanation)
+
 # ==================================================
 # Footer
 # ==================================================
