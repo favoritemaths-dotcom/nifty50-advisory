@@ -600,6 +600,32 @@ if quarterly_report:
 else:
     st.info("Upload a Quarterly Report PDF to see analysis.")
 
+# ==============================
+# STOCK SCORE & RECOMMENDATION
+# ==============================
+st.markdown("## 🧠 Stock Advisory Summary")
+
+score, recommendation, reasons = score_stock(
+    fund,
+    news_items if "news_items" in locals() else [],
+    annual_summary if "annual_summary" in locals() else None,
+    quarterly_summary if "quarterly_summary" in locals() else None,
+    risk_profile
+)
+
+st.metric("Stock Quality Score", f"{score} / 100")
+
+if recommendation == "BUY":
+    st.success("🟢 Recommendation: BUY")
+elif recommendation == "HOLD":
+    st.warning("🟡 Recommendation: HOLD")
+else:
+    st.error("🔴 Recommendation: AVOID")
+
+st.write("### Why this recommendation?")
+for r in reasons:
+    st.write(f"• {r}")
+
 # ==================================================
 # Footer
 # ==================================================
