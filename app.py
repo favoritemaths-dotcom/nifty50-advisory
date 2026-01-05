@@ -97,6 +97,7 @@ st.write(f"**Sector:** {row['Sector']}")
 cmp = get_cmp(stock)
 st.write(f"**CMP:** ₹{cmp if cmp else '—'} (Yahoo)")
 st.markdown("### 💰 Fair Value & Entry Zone")
+
 # ==================================================
 # FAIR VALUE ESTIMATION (B1)
 # ==================================================
