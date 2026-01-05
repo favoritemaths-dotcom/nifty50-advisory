@@ -365,9 +365,6 @@ if red_flags:
     for f in red_flags:
         reasons.append(f"⚠️ {f}")
 
-# ✅ THIS MUST COME AFTER D2
-score = max(0, min(score, 100))
-
     score = max(0, min(score, 100))
 
     rec = "BUY" if score >= 70 else "HOLD" if score >= 50 else "AVOID"
