@@ -261,6 +261,56 @@ def detect_profile_mismatch(fund, risk_profile):
 
     return warnings
 
+def estimate_fair_value(fund, sector=None):
+    """
+    Simple fair value estimation using EPS * reasonable PE
+    Conservative, explainable, rule-based
+    """
+
+    eps = fund.get("EPSGrowth")  # growth proxy
+    pe = fund.get("PE")
+
+    if pe is None:
+        return None, None, None
+
+    # Base PE assumptions (can be refined sector-wise later)
+    if pe <= 15:
+        fair_pe = 18
+    elif pe <= 25:
+        fair_pe = 22
+    else:
+        fair_pe = 25  # cap optimism
+
+    # If growth is weak, reduce fair PE
+    if eps is not None and eps < 0.05:
+        fair_pe -= 3
+
+    try:
+        ticker_eps = yf.Ticker(stock + ".NS").info.get("trailingEps")
+    except:
+        ticker_eps = None
+
+    if ticker_eps is None:
+        return None, None, None
+
+    fair_value = round(ticker_eps * fair_pe, 2)
+
+    cmp = get_cmp(stock)
+    if cmp is None:
+        return fair_value, None, None
+
+    upside_pct = round((fair_value - cmp) / cmp * 100, 2)
+
+    # Entry zone classification
+    if cmp <= 0.85 * fair_value:
+        zone = "🟢 Attractive"
+    elif cmp <= fair_value:
+        zone = "🟡 Reasonable"
+    else:
+        zone = "🔴 Expensive"
+
+    return fair_value, upside_pct, zone
+    
 fund = fetch_fundamentals(stock)
 
 # ==================================================
