@@ -360,6 +360,7 @@ quarterly_text = extract_text(quarterly_pdf)
 # SCORING ENGINE
 # ==================================================
 def score_stock(fund, news, annual_text, quarterly_text, risk):
+def score_stock(fund, news, annual_text, quarterly_text, risk):
     score = 50
     reasons = []
 
@@ -404,20 +405,18 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
     if red_flags:
         penalty = min(15, 5 * len(red_flags))
         score -= penalty
-
         for f in red_flags:
             reasons.append(f"⚠️ {f}")
-           
-# -----------------------------
-# D3 – RISK PROFILE MISMATCH
-# -----------------------------
-profile_warnings = detect_profile_mismatch(fund, risk)
 
-if profile_warnings:
-    score -= min(10, 3 * len(profile_warnings))  # soft penalty
+    # -----------------------------
+    # D3 – RISK PROFILE MISMATCH
+    # -----------------------------
+    profile_warnings = detect_profile_mismatch(fund, risk)
 
-    for w in profile_warnings:
-        reasons.append(f"⚠️ {w}")
+    if profile_warnings:
+        score -= min(10, 3 * len(profile_warnings))
+        for w in profile_warnings:
+            reasons.append(f"⚠️ {w}")
 
     # -----------------------------
     # FINALIZE SCORE
