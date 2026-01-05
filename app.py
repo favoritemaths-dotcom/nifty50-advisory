@@ -501,6 +501,35 @@ def generate_explanation(
     return "\n\n".join(explanation)
 
 # ==================================================
+# CONFIDENCE & DECISION CLARITY (D4)
+# ==================================================
+
+def confidence_band(score, red_flags_count, profile_warnings_count):
+    if score >= 75 and red_flags_count == 0:
+        return "🟢 High Confidence"
+    if score >= 60 and red_flags_count <= 1:
+        return "🟡 Medium Confidence"
+    return "🔴 Low Confidence"
+
+
+def change_triggers(fund):
+    triggers = []
+
+    if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
+        triggers.append("Reduction in debt levels")
+
+    if fund.get("EPSGrowth") and fund["EPSGrowth"] < 0.05:
+        triggers.append("Sustained earnings growth improvement")
+
+    if fund.get("PE") and fund["PE"] > 35:
+        triggers.append("Valuation correction or faster growth")
+
+    if not triggers:
+        triggers.append("Material change in fundamentals or industry outlook")
+
+    return triggers
+
+# ==================================================
 # ALLOCATION ENGINE
 # ==================================================
 def suggest_allocation(score, rec, risk_profile, total_investment):
