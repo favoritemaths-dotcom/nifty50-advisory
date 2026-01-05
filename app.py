@@ -96,6 +96,24 @@ st.write(f"**Sector:** {row['Sector']}")
 
 cmp = get_cmp(stock)
 st.write(f"**CMP:** ₹{cmp if cmp else '—'} (Yahoo)")
+st.markdown("### 💰 Fair Value & Entry Zone")
+
+c1, c2, c3 = st.columns(3)
+
+c1.metric(
+    "Estimated Fair Value",
+    f"₹{fair_value}" if fair_value else "—"
+)
+
+c2.metric(
+    "Upside / Downside",
+    f"{upside_pct}%" if upside_pct is not None else "—"
+)
+
+c3.metric(
+    "Entry Zone",
+    entry_zone if entry_zone else "—"
+)
 
 # ==================================================
 # FUNDAMENTALS (FULL SET)
