@@ -309,17 +309,16 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
     score = 50
     reasons = []
 
+    # -----------------------------
+    # Normal scoring rules
+    # -----------------------------
     if fund.get("PE") and fund["PE"] < 25:
         score += 5
-        reasons.append("Reasonable valuation.")
+        reasons.append("Reasonable valuation (PE < 25).")
 
     if fund.get("ROE") and fund["ROE"] > 0.15:
         score += 7
         reasons.append("Strong ROE.")
-
-    if fund.get("NetMargin") and fund["NetMargin"] > 0.1:
-        score += 5
-        reasons.append("Healthy margins.")
 
     if fund.get("DebtEquity") and fund["DebtEquity"] < 1:
         score += 5
@@ -334,17 +333,17 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
 
     if news:
         score += 5
-        reasons.append("Active recent news.")
+        reasons.append("Active recent news flow.")
 
     if "risk" in annual_text:
         score -= 5
-        reasons.append("Risks mentioned in reports.")
+        reasons.append("Risks mentioned in annual report.")
 
     if risk == "Aggressive":
         score += 3
 
     # -----------------------------
-    # RED FLAG OVERRIDES (D2)
+    # D2 – RED FLAG OVERRIDES
     # -----------------------------
     red_flags = detect_red_flags(fund)
 
@@ -355,26 +354,19 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
         for f in red_flags:
             reasons.append(f"⚠️ {f}")
 
-    # ==============================
-# RED FLAG WARNINGS
-# ==============================
-red_flags = detect_red_flags(fund)
-
-if red_flags:
-    st.markdown("### 🚨 Red Flags Detected")
-    for f in red_flags:
-        st.error(f)
-else:
-    st.markdown("### ✅ No Major Red Flags Detected")
-
+    # -----------------------------
+    # FINALIZE SCORE
+    # -----------------------------
     score = max(0, min(score, 100))
 
-    rec = "BUY" if score >= 70 else "HOLD" if score >= 50 else "AVOID"
-    return score, rec, reasons
+    if score >= 70:
+        rec = "BUY"
+    elif score >= 50:
+        rec = "HOLD"
+    else:
+        rec = "AVOID"
 
-score, rec, reasons = score_stock(
-    fund, news, annual_text, quarterly_text, risk_profile
-)
+    return score, rec, reasons
 
 # ==================================================
 # ALLOCATION ENGINE
