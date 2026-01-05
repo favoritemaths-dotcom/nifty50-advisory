@@ -343,6 +343,18 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
     if risk == "Aggressive":
         score += 3
 
+    # -----------------------------
+    # RED FLAG OVERRIDES (D2)
+    # -----------------------------
+    red_flags = detect_red_flags(fund)
+
+    if red_flags:
+        penalty = min(15, 5 * len(red_flags))
+        score -= penalty
+
+        for f in red_flags:
+            reasons.append(f"⚠️ {f}")
+
     score = max(0, min(score, 100))
 
     rec = "BUY" if score >= 70 else "HOLD" if score >= 50 else "AVOID"
