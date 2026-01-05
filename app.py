@@ -412,7 +412,6 @@ st.markdown("## 💼 Suggested Portfolio Allocation")
 # ==================================================
 # OUTPUT
 # ==================================================
-st.markdown("## 💼 Suggested Portfolio Allocation")
 
 alloc_pct, alloc_amt = suggest_allocation(
     score, rec, risk_profile, investment_amount
