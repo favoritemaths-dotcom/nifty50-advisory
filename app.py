@@ -500,4 +500,14 @@ st.markdown("### Why this recommendation?")
 for r in reasons:
     st.write(f"• {r}")
 
+# ==============================
+# Risk Profile Suitability Note
+# ==============================
+profile_warnings = detect_profile_mismatch(fund, risk_profile)
+
+if profile_warnings:
+    st.markdown("### ⚠️ Risk Profile Suitability")
+    for w in profile_warnings:
+        st.warning(w)
+
 st.caption("Prices may be delayed. For private analytical use only.")
