@@ -268,9 +268,9 @@ def suggest_allocation(
     """
 
     # Base allocation by recommendation
-    if recommendation == "BUY":
+    if rec == "BUY":
         alloc_pct = 12
-    elif recommendation == "HOLD":
+    elif rec == "HOLD":
         alloc_pct = 6
     else:
         alloc_pct = 2
