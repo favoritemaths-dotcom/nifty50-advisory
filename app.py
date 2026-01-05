@@ -296,6 +296,28 @@ def suggest_allocation(
 
     return alloc_pct, alloc_amount
 
+# ==============================
+# PORTFOLIO ALLOCATION
+# ==============================
+st.markdown("## 💼 Suggested Portfolio Allocation")
+
+alloc_pct, alloc_amt = suggest_allocation(
+    score,
+    rec,
+    risk_profile,
+    investment_amount
+)
+
+st.metric("Suggested Allocation", f"{alloc_pct}%")
+st.metric("Suggested Investment Amount", f"₹{int(alloc_amt):,}")
+
+if alloc_pct == 0:
+    st.warning("This stock is not recommended for allocation currently.")
+elif alloc_pct <= 5:
+    st.info("Small allocation suggested due to moderate risk.")
+else:
+    st.success("Allocation aligns with your risk profile.")
+
 # ==================================================
 # AI EXPLANATION
 # ==================================================
