@@ -203,6 +203,34 @@ c10, c11 = st.columns(2)
 c10.metric("Revenue Growth (YoY)", f"{round(fund.get('RevenueGrowth')*100,2)}%" if fund.get("RevenueGrowth") else "—")
 c11.metric("EPS Growth (YoY)", f"{round(fund.get('EPSGrowth')*100,2)}%" if fund.get("EPSGrowth") else "—")
 
+# ==============================
+# METRIC QUALITY FLAGS
+# ==============================
+st.markdown("### 🧪 Metric Quality Assessment")
+
+quality_metrics = {
+    "ROE": fund.get("ROE"),
+    "DebtEquity": fund.get("DebtEquity"),
+    "InterestCover": fund.get("InterestCover"),
+    "PE": fund.get("PE"),
+    "RevenueGrowth": fund.get("RevenueGrowth"),
+    "EPSGrowth": fund.get("EPSGrowth"),
+}
+
+for metric, value in quality_metrics.items():
+    label, color = evaluate_metric(metric, value)
+
+    if value is None:
+        display_value = "—"
+    elif "Growth" in metric:
+        display_value = f"{round(value*100,2)}%"
+    else:
+        display_value = round(value, 2)
+
+    st.markdown(
+        f"**{metric}**: {display_value} &nbsp;&nbsp; {label}"
+    )
+
 # ==================================================
 # NEWS
 # ==================================================
