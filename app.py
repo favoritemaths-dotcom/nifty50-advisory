@@ -207,6 +207,60 @@ def detect_red_flags(fund):
 
     return flags
 
+def detect_profile_mismatch(fund, risk_profile):
+    """
+    Detect mismatch between investor risk profile and stock characteristics
+    Returns list of warning messages
+    """
+    warnings = []
+
+    debt = fund.get("DebtEquity")
+    interest = fund.get("InterestCover")
+    pe = fund.get("PE")
+    eps_g = fund.get("EPSGrowth")
+    rev_g = fund.get("RevenueGrowth")
+
+    # -----------------------------
+    # Conservative investor checks
+    # -----------------------------
+    if risk_profile == "Conservative":
+        if debt is not None and debt > 1:
+            warnings.append(
+                "High leverage may not suit a conservative risk profile."
+            )
+
+        if interest is not None and interest < 2:
+            warnings.append(
+                "Low interest coverage is risky for conservative investors."
+            )
+
+        if pe is not None and pe > 30:
+            warnings.append(
+                "High valuation may limit margin of safety for conservative investors."
+            )
+
+    # -----------------------------
+    # Moderate investor checks
+    # -----------------------------
+    if risk_profile == "Moderate":
+        if pe is not None and pe > 40:
+            if (eps_g is not None and eps_g < 0.05) or (rev_g is not None and rev_g < 0.05):
+                warnings.append(
+                    "High valuation without strong growth weakens risk–reward balance."
+                )
+
+    # -----------------------------
+    # Aggressive investor checks
+    # -----------------------------
+    if risk_profile == "Aggressive":
+        if pe is not None and pe > 45:
+            if eps_g is not None and eps_g < 0:
+                warnings.append(
+                    "Aggressive valuation without earnings growth increases downside risk."
+                )
+
+    return warnings
+
 fund = fetch_fundamentals(stock)
 
 # ==================================================
