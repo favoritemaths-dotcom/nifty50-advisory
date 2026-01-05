@@ -397,6 +397,19 @@ def suggest_allocation(score, rec, risk_profile, total_investment):
     return alloc_pct, alloc_amt
 
 # ==================================================
+# RUN SCORING ENGINE (REQUIRED)
+# ==================================================
+score, rec, reasons = score_stock(
+    fund,
+    news,
+    annual_text,
+    quarterly_text,
+    risk_profile
+)
+
+st.markdown("## 💼 Suggested Portfolio Allocation")
+
+# ==================================================
 # OUTPUT
 # ==================================================
 st.markdown("## 💼 Suggested Portfolio Allocation")
