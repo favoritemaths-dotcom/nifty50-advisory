@@ -175,6 +175,38 @@ def evaluate_metric(name, value):
 
     return "—", "Neutral"
 
+def detect_red_flags(fund):
+    """
+    Detect high-risk financial red flags
+    Returns a list of warning strings
+    """
+    flags = []
+
+    debt = fund.get("DebtEquity")
+    interest = fund.get("InterestCover")
+    pe = fund.get("PE")
+    eps_g = fund.get("EPSGrowth")
+    rev_g = fund.get("RevenueGrowth")
+
+    # Balance sheet stress
+    if debt is not None and debt > 2.5:
+        flags.append("Very high Debt/Equity (>2.5) indicates balance-sheet stress.")
+
+    # Debt servicing risk
+    if interest is not None and interest < 1.5:
+        flags.append("Low interest coverage (<1.5) raises debt servicing risk.")
+
+    # Valuation trap
+    if pe is not None and pe > 40:
+        if (eps_g is not None and eps_g < 0.05) or (rev_g is not None and rev_g < 0.05):
+            flags.append("High valuation with weak growth suggests a valuation risk.")
+
+    # Growth slowdown
+    if eps_g is not None and eps_g < 0:
+        flags.append("Negative EPS growth indicates earnings contraction.")
+
+    return flags
+
 fund = fetch_fundamentals(stock)
 
 # ==================================================
