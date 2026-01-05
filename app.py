@@ -407,6 +407,17 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
 
         for f in red_flags:
             reasons.append(f"⚠️ {f}")
+           
+# -----------------------------
+# D3 – RISK PROFILE MISMATCH
+# -----------------------------
+profile_warnings = detect_profile_mismatch(fund, risk)
+
+if profile_warnings:
+    score -= min(10, 3 * len(profile_warnings))  # soft penalty
+
+    for w in profile_warnings:
+        reasons.append(f"⚠️ {w}")
 
     # -----------------------------
     # FINALIZE SCORE
