@@ -312,6 +312,7 @@ def estimate_fair_value(fund, sector=None):
     return fair_value, upside_pct, zone
     
 fund = fetch_fundamentals(stock)
+fair_value, upside_pct, entry_zone = estimate_fair_value(fund)
 
 # ==================================================
 # FUNDAMENTALS DISPLAY
