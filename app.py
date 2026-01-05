@@ -97,11 +97,10 @@ st.write(f"**Sector:** {row['Sector']}")
 cmp = get_cmp(stock)
 st.write(f"**CMP:** ₹{cmp if cmp else '—'} (Yahoo)")
 st.markdown("### 💰 Fair Value & Entry Zone")
-
 # ==================================================
 # FAIR VALUE ESTIMATION (B1)
 # ==================================================
-fair_value, upside_pct, entry_zone = estimate_fair_value(stock)
+fair_value, upside_pct, entry_zone = estimate_fair_value(stock, fund)
 
 c1, c2, c3 = st.columns(3)
 
