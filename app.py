@@ -539,6 +539,19 @@ score, rec, reasons = score_stock(
     risk_profile
 )
 
+st.markdown("## 🧠 AI Advisory Explanation")
+
+explanation = generate_explanation(
+    stock,
+    score,
+    rec,
+    reasons,
+    risk_profile,
+    time_horizon
+)
+
+st.markdown(explanation)
+
 st.markdown("## 💼 Suggested Portfolio Allocation")
 
 # ==================================================
