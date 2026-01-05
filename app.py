@@ -355,6 +355,18 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
         for f in red_flags:
             reasons.append(f"⚠️ {f}")
 
+    # ==============================
+# RED FLAG WARNINGS
+# ==============================
+red_flags = detect_red_flags(fund)
+
+if red_flags:
+    st.markdown("### 🚨 Red Flags Detected")
+    for f in red_flags:
+        st.error(f)
+else:
+    st.markdown("### ✅ No Major Red Flags Detected")
+
     score = max(0, min(score, 100))
 
     rec = "BUY" if score >= 70 else "HOLD" if score >= 50 else "AVOID"
