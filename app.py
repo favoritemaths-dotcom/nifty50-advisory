@@ -431,6 +431,75 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
 
     return score, rec, reasons
 
+def generate_explanation(
+    stock,
+    score,
+    rec,
+    reasons,
+    risk_profile,
+    time_horizon
+):
+    """
+    Rule-based analyst-style explanation (AI-like, deterministic)
+    """
+
+    tone = {
+        "Conservative": "capital preservation and downside protection",
+        "Moderate": "balanced risk–reward with steady compounding",
+        "Aggressive": "growth and upside potential"
+    }
+
+    explanation = []
+
+    explanation.append(
+        f"### 🤖 AI Advisory View – {stock}"
+    )
+
+    explanation.append(
+        f"Based on your **{risk_profile.lower()}** risk profile and "
+        f"**{time_horizon.lower()}** investment horizon, this stock "
+        f"scores **{score}/100** under the current evaluation model."
+    )
+
+    explanation.append(
+        f"**Recommendation:** **{rec}**"
+    )
+
+    # Strengths & Concerns
+    if reasons:
+        explanation.append("#### Key Factors Considered:")
+        for r in reasons:
+            explanation.append(f"• {r}")
+
+    # Risk profile alignment
+    explanation.append(
+        f"This recommendation aligns with a strategy focused on "
+        f"**{tone[risk_profile]}**."
+    )
+
+    # Horizon-specific guidance
+    if time_horizon == "Short-term":
+        explanation.append(
+            "For a short-term horizon, market sentiment, valuation comfort, "
+            "and downside risk control are particularly important."
+        )
+    elif time_horizon == "Medium-term":
+        explanation.append(
+            "For a medium-term horizon, earnings visibility and balance-sheet "
+            "strength play a critical role."
+        )
+    else:
+        explanation.append(
+            "For a long-term horizon, sustainable growth, capital efficiency, "
+            "and financial resilience are key drivers of wealth creation."
+        )
+
+    explanation.append(
+        "_This is a rule-based decision-support insight, not financial advice._"
+    )
+
+    return "\n\n".join(explanation)
+
 # ==================================================
 # ALLOCATION ENGINE
 # ==================================================
