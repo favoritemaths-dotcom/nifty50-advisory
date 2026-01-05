@@ -259,7 +259,7 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
 
 def suggest_allocation(
     score,
-    recommendation,
+    rec,
     risk_profile,
     total_investment
 ):
