@@ -120,6 +120,61 @@ def fetch_fundamentals(symbol):
     except:
         return {}
 
+def evaluate_metric(name, value):
+    """
+    Classify metric quality as Strong / Average / Weak
+    """
+
+    if value is None:
+        return "—", "Neutral"
+
+    # Profitability
+    if name == "ROE":
+        if value >= 0.18:
+            return "✅ Strong", "green"
+        elif value >= 0.12:
+            return "⚠️ Average", "orange"
+        else:
+            return "❌ Weak", "red"
+
+    # Leverage
+    if name == "DebtEquity":
+        if value <= 1:
+            return "✅ Strong", "green"
+        elif value <= 2:
+            return "⚠️ Average", "orange"
+        else:
+            return "❌ Weak", "red"
+
+    # Interest coverage
+    if name == "InterestCover":
+        if value >= 3:
+            return "✅ Strong", "green"
+        elif value >= 1.5:
+            return "⚠️ Average", "orange"
+        else:
+            return "❌ Weak", "red"
+
+    # Valuation
+    if name == "PE":
+        if value <= 25:
+            return "✅ Reasonable", "green"
+        elif value <= 40:
+            return "⚠️ Expensive", "orange"
+        else:
+            return "❌ Very Expensive", "red"
+
+    # Growth
+    if name in ["RevenueGrowth", "EPSGrowth"]:
+        if value >= 0.15:
+            return "✅ Strong", "green"
+        elif value >= 0.05:
+            return "⚠️ Moderate", "orange"
+        else:
+            return "❌ Weak", "red"
+
+    return "—", "Neutral"
+
 fund = fetch_fundamentals(stock)
 
 # ==================================================
