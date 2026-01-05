@@ -400,9 +400,6 @@ def score_stock(
     Returns score (0–100), recommendation, and reasons
     """
 
-    score = 50  # base score
-    reasons = []
-
 def generate_ai_explanation(
     stock_name,
     score,
@@ -437,6 +434,9 @@ performance, news flow, and future earnings updates.
 """
 
     return explanation
+
+    score = 50  # base score
+    reasons = []
 
     # -----------------------------
     # FUNDAMENTALS (max ±25)
