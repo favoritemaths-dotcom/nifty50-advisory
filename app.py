@@ -257,6 +257,45 @@ def score_stock(fund, news, annual_text, quarterly_text, risk):
 
     return score, rec, reasons
 
+def suggest_allocation(
+    score,
+    recommendation,
+    risk_profile,
+    total_investment
+):
+    """
+    Suggest portfolio allocation % and amount
+    """
+
+    # Base allocation by recommendation
+    if recommendation == "BUY":
+        alloc_pct = 12
+    elif recommendation == "HOLD":
+        alloc_pct = 6
+    else:
+        alloc_pct = 2
+
+    # Score adjustment
+    if score >= 80:
+        alloc_pct += 2
+    elif score < 50:
+        alloc_pct -= 2
+
+    # UPDATED risk caps (as per your rule)
+    risk_caps = {
+        "Conservative": 15,
+        "Moderate": 25,
+        "Aggressive": 40
+    }
+
+    max_cap = risk_caps.get(risk_profile, 25)
+    alloc_pct = min(alloc_pct, max_cap)
+    alloc_pct = max(0, alloc_pct)
+
+    alloc_amount = round(total_investment * alloc_pct / 100, 0)
+
+    return alloc_pct, alloc_amount
+
 # ==================================================
 # AI EXPLANATION
 # ==================================================
