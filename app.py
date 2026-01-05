@@ -400,39 +400,6 @@ def score_stock(
     Returns score (0–100), recommendation, and reasons
     """
 
-def generate_ai_explanation(
-    stock_name,
-    score,
-    recommendation,
-    reasons,
-    risk_profile,
-    time_horizon
-):
-    """
-    Generate human-style explanation for the stock decision
-    (placeholder for real AI later)
-    """
-
-    explanation = f"""
-Based on your **{risk_profile.lower()} risk profile** and a
-**{time_horizon.lower()} investment horizon**, the stock
-**{stock_name}** has been evaluated with a score of **{score}/100**.
-
-### Recommendation: **{recommendation}**
-
-The decision is driven by the following factors:
-"""
-
-    for r in reasons:
-        explanation += f"\n• {r}"
-
-    explanation += """
-
-Overall, this recommendation balances potential returns with
-identified risks. You should continue to monitor company
-performance, news flow, and future earnings updates.
-"""
-
     return explanation
 
     score = 50  # base score
