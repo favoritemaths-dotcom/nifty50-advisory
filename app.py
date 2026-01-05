@@ -360,7 +360,6 @@ quarterly_text = extract_text(quarterly_pdf)
 # SCORING ENGINE
 # ==================================================
 def score_stock(fund, news, annual_text, quarterly_text, risk):
-def score_stock(fund, news, annual_text, quarterly_text, risk):
     score = 50
     reasons = []
 
