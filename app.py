@@ -567,7 +567,16 @@ score, rec, reasons = score_stock(
     quarterly_text,
     risk_profile
 )
+red_flags_count = len(detect_red_flags(fund))
+profile_warnings_count = len(
+    detect_profile_mismatch(fund, risk_profile)
+)
 
+confidence = confidence_band(
+    score,
+    red_flags_count,
+    profile_warnings_count
+)
 st.markdown("## 🧠 AI Advisory Explanation")
 
 explanation = generate_explanation(
@@ -608,6 +617,13 @@ else:
 st.markdown("### Why this recommendation?")
 for r in reasons:
     st.write(f"• {r}")
+
+st.markdown("### 🔍 Recommendation Confidence")
+st.info(confidence)
+
+st.markdown("### 🔁 What Could Change This Recommendation?")
+for t in change_triggers(fund):
+    st.write(f"• {t}")
 
 # ==============================
 # Risk Profile Suitability Note
