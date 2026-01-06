@@ -190,6 +190,7 @@ def fetch_news(company):
 
 st.markdown("### 📰 Recent News")
 news = fetch_news(row["Company"])
+news_summary = analyze_news(news)
 
 if news:
     for n in news:
