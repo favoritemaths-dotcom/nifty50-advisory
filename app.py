@@ -4,6 +4,7 @@ import yfinance as yf
 import feedparser
 import urllib.parse
 from pypdf import PdfReader
+from logic_news import analyze_news
 
 # ==============================
 # IMPORT LOGIC MODULES
