@@ -98,6 +98,8 @@ cmp = get_cmp(stock)
 st.write(f"**CMP:** ₹{cmp if cmp else '—'} (Yahoo)")
 st.markdown("### 💰 Fair Value & Entry Zone")
 
+fair_value, upside_pct, entry_zone = estimate_fair_value(fund)
+
 c1, c2, c3 = st.columns(3)
 
 c1.metric(
@@ -322,7 +324,6 @@ def estimate_fair_value(stock, fund):
     return fair_value, upside_pct, zone
     
 fund = fetch_fundamentals(stock)
-fair_value, upside_pct, entry_zone = estimate_fair_value(fund)
 
 # ==================================================
 # FUNDAMENTALS DISPLAY
