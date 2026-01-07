@@ -250,6 +250,21 @@ quarterly_text = extract_text(quarterly_pdf)
 
 q_score, q_signals = analyze_quarterly_text(quarterly_text)
 
+# ==============================
+# A4 – QUARTERLY INTELLIGENCE ADJUSTMENT
+# ==============================
+
+if q_score is not None:
+    score_adjustment = min(10, max(-10, q_score))
+else:
+    score_adjustment = 0
+
+quarterly_reasons = []
+
+if q_signals:
+    for s in q_signals:
+        quarterly_reasons.append(f"📄 Quarterly insight: {s}")
+        
 score, rec, reasons = score_stock(
     fund,
     news_summary,
@@ -257,6 +272,12 @@ score, rec, reasons = score_stock(
     quarterly_text,
     risk_profile
 )
+
+# Apply quarterly score impact
+score = max(0, min(100, score + score_adjustment))
+
+# Attach quarterly insights to reasons
+reasons.extend(quarterly_reasons)
 
 # ==============================
 # STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
