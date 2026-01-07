@@ -5,21 +5,6 @@ def confidence_band(score, red_flag_count, mismatch_count):
         return "🟡 Medium Confidence"
     return "🔴 Low Confidence"
 
-def change_triggers(fund):
-    triggers = []
-
-    if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
-        triggers.append("Reduction in debt levels")
-
-    if fund.get("EPSGrowth") and fund["EPSGrowth"] < 0.05:
-        triggers.append("Sustained earnings growth")
-
-    if fund.get("PE") and fund["PE"] > 35:
-        triggers.append("Valuation correction")
-
-    if not triggers:
-        triggers.append("Material change in fundamentals or industry outlook")
-
     def risk_triggers(fund, q_score):
     """
     Conditions that could change the investment recommendation
