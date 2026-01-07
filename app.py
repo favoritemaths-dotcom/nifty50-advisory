@@ -215,7 +215,7 @@ else:
 # STEP 6 – NEWS INTELLIGENCE SIGNALS
 # ==============================
 
-news_bias = news_summary.get("overall", "Neutral")
+news_bias = news_summary.get("impact_label", "Neutral")
 
 if news_bias == "Positive":
     st.success("🟢 News sentiment supportive")
