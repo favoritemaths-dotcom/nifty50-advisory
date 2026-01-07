@@ -340,33 +340,51 @@ explanation = generate_explanation(
 st.markdown(explanation)
 
 # ==============================
+# CONVICTION MULTIPLIER (A6.1)
+# ==============================
+def conviction_multiplier(confidence):
+    if "High" in confidence:
+        return 1.0
+    if "Medium" in confidence:
+        return 0.7
+    return 0.4
+    
+# ==============================
 # ALLOCATION ENGINE
 # ==============================
-def suggest_allocation(score, rec, risk_profile, total):
-    base = 12 if rec == "BUY" else 6 if rec == "HOLD" else 2
+def suggest_allocation(score, rec, risk_profile, total_investment, confidence):
+    # Base allocation by recommendation
+    if rec == "BUY":
+        alloc_pct = 12
+    elif rec == "HOLD":
+        alloc_pct = 6
+    else:
+        alloc_pct = 2
 
+    # Score influence
     if score >= 80:
-        base += 2
+        alloc_pct += 2
     elif score < 50:
-        base -= 2
+        alloc_pct -= 2
 
-    caps = {
+    # Apply conviction multiplier
+    alloc_pct *= conviction_multiplier(confidence)
+
+    # Risk caps
+    risk_caps = {
         "Conservative": 15,
         "Moderate": 25,
         "Aggressive": 40
     }
 
-    pct = min(base, caps[risk_profile])
-    pct = max(0, pct)
-    amt = round(total * pct / 100)
+    alloc_pct = min(alloc_pct, risk_caps[risk_profile])
+    alloc_pct = max(0, round(alloc_pct, 1))
 
-    return pct, amt
+    alloc_amt = round(total_investment * alloc_pct / 100)
+    return alloc_pct, alloc_amt
 
 alloc_pct, alloc_amt = suggest_allocation(
-    score,
-    rec,
-    risk_profile,
-    investment_amount
+    score, rec, risk_profile, investment_amount, confidence
 )
 
 st.markdown("## 💼 Suggested Portfolio Allocation")
