@@ -275,9 +275,33 @@ score, rec, reasons = score_stock(
 
 # Apply quarterly score impact
 score = max(0, min(100, score + score_adjustment))
-
-# Attach quarterly insights to reasons
 reasons.extend(quarterly_reasons)
+
+# ==============================
+# A5 – ANNUAL vs QUARTERLY CONTRADICTION CHECK
+# ==============================
+
+contradictions = []
+
+# Annual strong signals
+annual_positive = (
+    fund.get("ROE") is not None and fund["ROE"] > 0.18
+) or (
+    fund.get("RevenueGrowth") is not None and fund["RevenueGrowth"] > 0.15
+)
+
+# Quarterly weak signals
+quarterly_negative = q_score is not None and q_score < -5
+
+if annual_positive and quarterly_negative:
+    contradictions.append(
+        "Strong annual fundamentals but recent quarterly performance shows weakness."
+    )
+if contradictions:
+    reasons.extend([f"⚠️ {c}" for c in contradictions])
+    confidence_penalty = 1
+else:
+    confidence_penalty = 0
 
 # ==============================
 # STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
@@ -295,7 +319,7 @@ profile_warnings_count = len(
 
 confidence = confidence_band(
     score,
-    red_flags_count,
+    red_flags_count + confidence_penalty,
     profile_warnings_count
 )
 
