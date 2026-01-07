@@ -36,11 +36,11 @@ def analyze_news(news_items):
             neutral += 1
 
     if positive > negative:
-        impact = "🟢 Positive"
-    elif negative > positive:
-        impact = "🔴 Negative"
-    else:
-        impact = "🟡 Neutral"
+    impact_label = "🟢 Positive"
+elif negative > positive:
+    impact_label = "🔴 Negative"
+else:
+    impact_label = "🟡 Neutral"
 
     return {
         "positive": positive,
