@@ -354,22 +354,6 @@ def conviction_multiplier(confidence):
         return 0.7
     return 0.4
 
-def risk_triggers(fund, q_score):
-    triggers = []
-
-    if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
-        triggers.append("Debt levels increasing beyond comfort")
-
-    if fund.get("EPSGrowth") and fund["EPSGrowth"] < 0.05:
-        triggers.append("Earnings growth remains weak")
-
-    if q_score is not None and q_score < -5:
-        triggers.append("Quarterly performance deterioration")
-
-    if fund.get("PE") and fund["PE"] > 40:
-        triggers.append("Valuation risk if growth disappoints")
-
-    return triggers
 # ==============================
 # ALLOCATION ENGINE
 # ==============================
