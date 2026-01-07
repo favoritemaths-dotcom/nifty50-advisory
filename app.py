@@ -213,6 +213,10 @@ else:
 st.markdown("### 📑 Company Reports")
 
 annual_pdf = st.file_uploader("Upload Annual Report (PDF)", type=["pdf"])
+quarterly_pdf = st.file_uploader(
+    "Upload Quarterly Report (PDF)",
+    type=["pdf"]
+)
 
 def extract_text(pdf):
     if not pdf:
