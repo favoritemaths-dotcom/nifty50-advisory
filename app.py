@@ -209,6 +209,19 @@ else:
             st.markdown(f"- [{n.title}]({n.link})")
 
 # ==============================
+# STEP 6 – NEWS INTELLIGENCE SIGNALS
+# ==============================
+
+news_bias = news_summary.get("overall", "Neutral")
+
+if news_bias == "Positive":
+    st.success("🟢 News sentiment supportive")
+elif news_bias == "Negative":
+    st.error("🔴 News sentiment adverse")
+else:
+    st.info("🟡 News sentiment neutral")
+    
+# ==============================
 # REPORT UPLOAD
 # ==============================
 st.markdown("### 📑 Company Reports")
