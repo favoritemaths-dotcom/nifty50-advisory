@@ -230,8 +230,9 @@ annual_text = extract_text(annual_pdf)
 # ==============================
 score, rec, reasons = score_stock(
     fund,
-    news,
+    news_summary,
     annual_text,
+    quarterly_text,
     risk_profile
 )
 
