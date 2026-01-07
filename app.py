@@ -419,7 +419,7 @@ st.markdown("### 🔍 Recommendation Confidence")
 st.info(confidence)
 
 st.markdown("### 🔁 What Could Change This Recommendation?")
-for t in change_triggers(fund):
+for t in risk_triggers(fund):
     st.write(f"• {t}")
 
 # ==============================
