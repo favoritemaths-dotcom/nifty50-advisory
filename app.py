@@ -401,10 +401,6 @@ st.metric("Investment Amount", f"₹{alloc_amt:,}")
 st.markdown("### 🔍 Recommendation Confidence")
 st.info(confidence)
 
-st.markdown("### 🔁 What Could Change This Recommendation?")
-for t in risk_triggers(fund, q_score):
-    st.write(f"• {t}")
-
 # ==============================
 # FINAL NOTE
 # ==============================
