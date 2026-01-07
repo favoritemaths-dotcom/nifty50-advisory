@@ -1,11 +1,12 @@
-def confidence_band(score, red_flag_count, mismatch_count):
-    if score >= 75 and red_flag_count == 0:
+def confidence_band(score, red_flags_count, profile_warnings_count):
+    if score >= 75 and red_flags_count == 0:
         return "🟢 High Confidence"
-    if score >= 60 and red_flag_count <= 1:
+    if score >= 60 and red_flags_count <= 1:
         return "🟡 Medium Confidence"
     return "🔴 Low Confidence"
 
-    def risk_triggers(fund, q_score):
+
+def risk_triggers(fund, q_score):
     """
     Conditions that could change the investment recommendation
     """
@@ -27,4 +28,3 @@ def confidence_band(score, red_flag_count, mismatch_count):
         triggers.append("Material change in fundamentals or industry outlook")
 
     return triggers
-    
