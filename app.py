@@ -228,7 +228,7 @@ def extract_text(pdf):
     return text.lower()
 
 annual_text = extract_text(annual_pdf)
-quarterly_text = ""
+quarterly_text = extract_text(quarterly_pdf)
 
 # ==============================
 # SCORING ENGINE
