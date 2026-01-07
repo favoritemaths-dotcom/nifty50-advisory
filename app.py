@@ -177,8 +177,11 @@ quality_metrics = [
 
 for m in quality_metrics:
     val = fund.get(m)
-    st.write(f"**{m}:** {evaluate_metric(m, val)}")
 
+    if val is None:
+        st.write(f"**{m}:** Data unavailable")
+    else:
+        st.write(f"**{m}:** {evaluate_metric(m, val)}")
 # ==============================
 # NEWS
 # ==============================
