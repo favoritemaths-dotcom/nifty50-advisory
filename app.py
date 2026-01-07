@@ -5,6 +5,7 @@ import feedparser
 import urllib.parse
 from pypdf import PdfReader
 from logic_news import analyze_news
+from logic_quarterly import analyze_quarterly_text
 
 # ==============================
 # IMPORT LOGIC MODULES
