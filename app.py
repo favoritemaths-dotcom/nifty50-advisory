@@ -192,11 +192,20 @@ st.markdown("### 📰 Recent News")
 news = fetch_news(row["Company"])
 news_summary = analyze_news(news)
 
-if news:
-    for n in news:
-        st.markdown(f"- [{n.title}]({n.link})")
-else:
+if not news:
     st.write("No recent news found.")
+else:
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric("Positive News", news_summary["positive"])
+    c2.metric("Neutral News", news_summary["neutral"])
+    c3.metric("Negative News", news_summary["negative"])
+
+    st.info(f"**Overall Impact:** {news_summary['impact_label']}")
+
+    with st.expander("View Headlines"):
+        for n in news:
+            st.markdown(f"- [{n.title}]({n.link})")
 
 # ==============================
 # REPORT UPLOAD
