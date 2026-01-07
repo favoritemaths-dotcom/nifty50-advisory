@@ -20,7 +20,6 @@ from logic_fundamentals import (
 from logic_valuation import estimate_fair_value
 from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
-from logic_confidence import confidence_band, risk_triggers
 
 # ==============================
 # PAGE CONFIG
