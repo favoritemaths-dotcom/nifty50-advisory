@@ -322,6 +322,7 @@ confidence = confidence_band(
     red_flags_count + confidence_penalty,
     profile_warnings_count
 )
+triggers = risk_triggers(fund, q_score)
 
 # ==============================
 # AI EXPLANATION
@@ -338,6 +339,9 @@ explanation = generate_explanation(
 )
 
 st.markdown(explanation)
+st.markdown("### 🔁 What Could Change This Recommendation?")
+for t in triggers:
+    st.write(f"• {t}")
 
 # ==============================
 # CONVICTION MULTIPLIER (A6.1)
@@ -348,7 +352,23 @@ def conviction_multiplier(confidence):
     if "Medium" in confidence:
         return 0.7
     return 0.4
-    
+
+def risk_triggers(fund, q_score):
+    triggers = []
+
+    if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
+        triggers.append("Debt levels increasing beyond comfort")
+
+    if fund.get("EPSGrowth") and fund["EPSGrowth"] < 0.05:
+        triggers.append("Earnings growth remains weak")
+
+    if q_score is not None and q_score < -5:
+        triggers.append("Quarterly performance deterioration")
+
+    if fund.get("PE") and fund["PE"] > 40:
+        triggers.append("Valuation risk if growth disappoints")
+
+    return triggers
 # ==============================
 # ALLOCATION ENGINE
 # ==============================
