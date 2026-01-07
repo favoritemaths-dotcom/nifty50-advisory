@@ -307,11 +307,6 @@ else:
 # STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
 # ==============================
 
-if q_score != 0:
-    score = max(0, min(score + q_score, 100))
-    for s in q_signals:
-        reasons.append(f"Quarterly insight: {s}")
-        
 red_flags_count = len(detect_red_flags(fund))
 profile_warnings_count = len(
     detect_profile_mismatch(fund, risk_profile)
