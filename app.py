@@ -561,6 +561,39 @@ else:
     st.error(final_rec)
 
 # ==============================
+# A13 – THESIS INVALIDATION CHECK
+# ==============================
+invalidation_reasons = []
+
+# Score collapse
+if score < 45:
+    invalidation_reasons.append(
+        "Overall score has fallen below 45, invalidating the investment thesis."
+    )
+
+# Quarterly deterioration
+if q_score is not None and q_score < -8:
+    invalidation_reasons.append(
+        "Severe quarterly performance deterioration detected."
+    )
+
+# Fundamentals break
+if fund.get("ROE") is not None and fund["ROE"] < 0.10:
+    invalidation_reasons.append(
+        "Return on Equity has dropped below acceptable levels."
+    )
+
+if fund.get("DebtEquity") is not None and fund["DebtEquity"] > 2:
+    invalidation_reasons.append(
+        "Leverage has increased beyond safe thresholds."
+    )
+
+# News turning adverse
+if news_summary.get("impact_label") == "Negative" and score < 60:
+    invalidation_reasons.append(
+        "Sustained negative news flow combined with weakening fundamentals."
+    )
+# ==============================
 # AI EXPLANATION
 # ==============================
 st.markdown("## 🧠 AI Advisory Explanation")
