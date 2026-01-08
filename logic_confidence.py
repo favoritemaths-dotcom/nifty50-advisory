@@ -5,7 +5,19 @@ def confidence_band(score, red_flags_count, profile_warnings_count):
         return "🟡 Medium Confidence"
     return "🔴 Low Confidence"
 
+def stabilize_confidence(prev_confidence, new_confidence, score_delta):
+    """
+    Prevents confidence from changing if score movement is small
+    """
+    if prev_confidence is None:
+        return new_confidence
 
+    # If score change is minor, freeze confidence
+    if abs(score_delta) < 5:
+        return prev_confidence
+
+    return new_confidence
+    
 def risk_triggers(fund, q_score):
     """
     Conditions that could change the investment recommendation
