@@ -9,23 +9,24 @@ def news_weight(published):
         days_old = (datetime.now(timezone.utc) - published_dt).days
 
         if days_old <= 1:
-            return 1.0        # Today / yesterday
+            return 1.0
         elif days_old <= 7:
-            return 0.7        # This week
+            return 0.7
         elif days_old <= 30:
-            return 0.4        # This month
+            return 0.4
         else:
-            return 0.2        # Old news
+            return 0.2
     except:
-        return 0.5            # Safe fallback
-        
+        return 0.5
+
+
 def analyze_news(news_items):
     """
     Rule-based news sentiment analysis
     Returns counts + overall impact label
     """
 
-    # Safety default: always return consistent structure
+    # Safety default
     if not news_items:
         return {
             "positive": 0,
@@ -49,30 +50,30 @@ def analyze_news(news_items):
     neutral = 0
 
     for n in news_items:
-    title = n.title.lower()
-    weight = news_weight(getattr(n, "published_parsed", None))
+        title = n.title.lower()
+        weight = news_weight(getattr(n, "published_parsed", None))
 
-    if any(k in title for k in positive_keywords):
-        positive += weight
-    elif any(k in title for k in negative_keywords):
-        negative += weight
+        if any(k in title for k in positive_keywords):
+            positive += weight
+        elif any(k in title for k in negative_keywords):
+            negative += weight
+        else:
+            neutral += weight
+
+    positive = round(positive)
+    negative = round(negative)
+    neutral = round(neutral)
+
+    if positive > negative:
+        impact_label = "Positive"
+    elif negative > positive:
+        impact_label = "Negative"
     else:
-        neutral += weight
+        impact_label = "Neutral"
 
-positive = round(positive)
-negative = round(negative)
-neutral = round(neutral)
-
-if positive > negative:
-    impact_label = "Positive"
-elif negative > positive:
-    impact_label = "Negative"
-else:
-    impact_label = "Neutral"
-
-return {
-    "positive": positive,
-    "negative": negative,
-    "neutral": neutral,
-    "impact_label": impact_label
-}
+    return {
+        "positive": positive,
+        "negative": negative,
+        "neutral": neutral,
+        "impact_label": impact_label
+    }
