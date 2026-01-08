@@ -346,6 +346,33 @@ alloc_pct, alloc_amt = suggest_allocation(
     regime_multiplier
 )
 
+# ==============================
+# PORTFOLIO INTELLIGENCE
+# ==============================
+
+portfolio = [
+    {
+        "stock": stock,
+        "sector": row.get("Sector", "Unknown"),
+        "allocation_pct": alloc_pct
+    }
+]
+
+portfolio_result = analyze_portfolio(
+    portfolio,
+    risk_profile
+)
+
+st.markdown("## 📊 Portfolio Intelligence")
+
+st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
+
+if portfolio_result["warnings"]:
+    for w in portfolio_result["warnings"]:
+        st.warning(w)
+
+for i in portfolio_result["insights"]:
+    st.info(i)
 st.markdown("## 💼 Suggested Portfolio Allocation")
 st.metric("Allocation %", f"{alloc_pct}%")
 st.metric("Investment Amount", f"₹{alloc_amt:,}")
