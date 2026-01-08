@@ -6,12 +6,15 @@ import urllib.parse
 from pypdf import PdfReader
 from logic_news import analyze_news
 from logic_quarterly import analyze_quarterly_text
-from logic_confidence import confidence_band, risk_triggers
-from logic_confidence import thesis_invalidation
+from logic_confidence import (
+    confidence_band,
+    risk_triggers,
+    conviction_multiplier,
+    conviction_label,
+    counter_case_analysis,
+    thesis_invalidation
+)
 
-# ==============================
-# IMPORT LOGIC MODULES
-# ==============================
 from logic_fundamentals import (
     fetch_fundamentals,
     evaluate_metric,
@@ -211,44 +214,6 @@ else:
     with st.expander("View Headlines"):
         for n in news:
             st.markdown(f"- [{n.title}]({n.link})")
-
-# CONVICTION MULTIPLIER (A6.1)
-# ==============================
-def conviction_multiplier(confidence):
-    if "High" in confidence:
-        return 1.0
-    if "Medium" in confidence:
-        return 0.7
-    return 0.4
-
-def conviction_label(rec, confidence, score):
-    """
-    Enhances recommendation with conviction clarity
-    """
-    if rec == "BUY":
-        if "High" in confidence and score >= 75:
-            return "BUY (High Conviction)"
-        elif "Medium" in confidence:
-            return "BUY (Moderate Conviction)"
-        else:
-            return "BUY (Speculative)"
-
-    if rec == "HOLD":
-        if "High" in confidence:
-            return "HOLD (Strong Fundamentals)"
-        elif "Medium" in confidence:
-            return "HOLD (Watch Closely)"
-        else:
-            return "HOLD (Low Conviction)"
-
-    if rec == "SELL":
-        if "High" in confidence:
-            return "SELL (High Risk)"
-        else:
-            return "SELL (Caution Advised)"
-
-    return rec
-
 
 # ==============================
 # STEP 6 – NEWS INTELLIGENCE SIGNALS
@@ -489,35 +454,6 @@ confidence = (
 
 prev_score = score
 triggers = risk_triggers(fund, q_score)
-
-def counter_case_analysis(fund, score, rec, news_summary, q_score):
-    risks = []
-
-    # Valuation risk
-    if fund.get("PE") and fund["PE"] > 30:
-        risks.append("Valuation is elevated; upside may be limited if growth disappoints.")
-
-    # Leverage risk
-    if fund.get("DebtEquity") and fund["DebtEquity"] > 1.5:
-        risks.append("High leverage increases downside risk during earnings or rate shocks.")
-
-    # Growth slowdown risk
-    if fund.get("RevenueGrowth") and fund["RevenueGrowth"] < 0.08:
-        risks.append("Revenue growth is modest and may not justify premium expectations.")
-
-    # Quarterly risk
-    if q_score is not None and q_score < -5:
-        risks.append("Recent quarterly performance shows early signs of weakness.")
-
-    # News vs fundamentals conflict
-    if news_summary.get("impact_label") == "Positive" and score < 60:
-        risks.append("Positive news may be short-term and not fully supported by fundamentals.")
-
-    # Recommendation sanity check
-    if rec == "BUY" and score < 65:
-        risks.append("Buy recommendation carries lower conviction due to mixed signals.")
-
-    return risks
 
 counter_risks = counter_case_analysis(
     fund,
