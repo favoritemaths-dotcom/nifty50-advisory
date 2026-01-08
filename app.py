@@ -373,11 +373,33 @@ profile_warnings_count = len(
     detect_profile_mismatch(fund, risk_profile)
 )
 
-confidence = confidence_band(
+def stabilize_confidence(prev_confidence, new_confidence, score_delta):
+    """
+    Prevents frequent confidence flip-flops.
+    """
+
+    # If score change is small, freeze confidence
+    if abs(score_delta) < 5:
+        return prev_confidence
+
+    return new_confidence
+
+prev_confidence = confidence if 'confidence' in locals() else None
+
+new_confidence = confidence_band(
     score,
     red_flags_count + confidence_penalty,
     profile_warnings_count
 )
+
+score_delta = score - prev_score if 'prev_score' in locals() else 10
+confidence = (
+    stabilize_confidence(prev_confidence, new_confidence, score_delta)
+    if prev_confidence
+    else new_confidence
+)
+
+prev_score = score
 triggers = risk_triggers(fund, q_score)
 
 # ==============================
