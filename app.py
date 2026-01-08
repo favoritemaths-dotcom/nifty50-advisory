@@ -48,6 +48,10 @@ df = df_all.copy()
 # ==============================
 st.sidebar.header("Filters")
 
+portfolio_mode = st.sidebar.checkbox(
+    "Enable Portfolio Mode",
+    value=False
+)
 sector = st.sidebar.selectbox(
     "Sector",
     ["All"] + sorted(df["Sector"].unique())
