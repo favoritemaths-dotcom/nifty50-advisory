@@ -462,6 +462,25 @@ if counter_risks:
 # A12 – CONVICTION-WEIGHTED RECOMMENDATION
 # ==============================
 final_rec = conviction_label(rec, confidence, score)
+# ================================
+# MARKET REGIME DETECTION
+# ================================
+market = detect_market_regime()
+
+st.markdown("## 🌍 Market Regime")
+st.info(market["label"])
+# ================================
+# MARKET REGIME ADJUSTMENT
+# ================================
+if market["risk_bias"] == "Negative" and final_rec.startswith("BUY"):
+    final_rec = "HOLD (Market Risk)"
+
+if market["risk_bias"] == "Negative" and score < 65:
+    final_rec = "AVOID (Market Conditions)"
+
+if market["risk_bias"] == "Positive" and final_rec.startswith("HOLD") and score >= 70:
+    final_rec = "BUY (Favorable Market)"
+    
 invalidation_reasons = thesis_invalidation(
     score,
     q_score,
