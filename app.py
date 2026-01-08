@@ -223,6 +223,22 @@ elif news_bias == "Negative":
     st.error("🔴 News sentiment adverse")
 else:
     st.info("🟡 News sentiment neutral")
+
+# ==============================
+# STEP 6.1 – NEWS SCORE IMPACT
+# ==============================
+
+def news_score_adjustment(news_summary):
+    """
+    Converts news sentiment into a small score adjustment
+    """
+    impact = news_summary.get("impact_label", "Neutral")
+
+    if impact == "Positive":
+        return +3
+    elif impact == "Negative":
+        return -5
+    return 0
     
 # ==============================
 # REPORT UPLOAD
@@ -276,6 +292,15 @@ score, rec, reasons = score_stock(
     risk_profile
 )
 
+# Apply news sentiment impact
+news_adj = news_score_adjustment(news_summary)
+score = max(0, min(100, score + news_adj))
+
+if news_adj != 0:
+    reasons.append(
+        f"News sentiment adjustment: {news_summary['impact_label']} ({news_adj:+d})"
+    )
+    
 # Apply quarterly score impact
 score = max(0, min(100, score + score_adjustment))
 reasons.extend(quarterly_reasons)
