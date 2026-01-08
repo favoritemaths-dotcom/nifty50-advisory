@@ -211,6 +211,44 @@ else:
         for n in news:
             st.markdown(f"- [{n.title}]({n.link})")
 
+# CONVICTION MULTIPLIER (A6.1)
+# ==============================
+def conviction_multiplier(confidence):
+    if "High" in confidence:
+        return 1.0
+    if "Medium" in confidence:
+        return 0.7
+    return 0.4
+
+def conviction_label(rec, confidence, score):
+    """
+    Enhances recommendation with conviction clarity
+    """
+    if rec == "BUY":
+        if "High" in confidence and score >= 75:
+            return "BUY (High Conviction)"
+        elif "Medium" in confidence:
+            return "BUY (Moderate Conviction)"
+        else:
+            return "BUY (Speculative)"
+
+    if rec == "HOLD":
+        if "High" in confidence:
+            return "HOLD (Strong Fundamentals)"
+        elif "Medium" in confidence:
+            return "HOLD (Watch Closely)"
+        else:
+            return "HOLD (Low Conviction)"
+
+    if rec == "SELL":
+        if "High" in confidence:
+            return "SELL (High Risk)"
+        else:
+            return "SELL (Caution Advised)"
+
+    return rec
+
+
 # ==============================
 # STEP 6 – NEWS INTELLIGENCE SIGNALS
 # ==============================
@@ -533,43 +571,6 @@ for t in triggers:
     st.write(f"• {t}")
 
 # ==============================
-# CONVICTION MULTIPLIER (A6.1)
-# ==============================
-def conviction_multiplier(confidence):
-    if "High" in confidence:
-        return 1.0
-    if "Medium" in confidence:
-        return 0.7
-    return 0.4
-
-def conviction_label(rec, confidence, score):
-    """
-    Enhances recommendation with conviction clarity
-    """
-    if rec == "BUY":
-        if "High" in confidence and score >= 75:
-            return "BUY (High Conviction)"
-        elif "Medium" in confidence:
-            return "BUY (Moderate Conviction)"
-        else:
-            return "BUY (Speculative)"
-
-    if rec == "HOLD":
-        if "High" in confidence:
-            return "HOLD (Strong Fundamentals)"
-        elif "Medium" in confidence:
-            return "HOLD (Watch Closely)"
-        else:
-            return "HOLD (Low Conviction)"
-
-    if rec == "SELL":
-        if "High" in confidence:
-            return "SELL (High Risk)"
-        else:
-            return "SELL (Caution Advised)"
-
-    return rec
-
 # ==============================
 # ALLOCATION ENGINE
 # ==============================
