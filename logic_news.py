@@ -1,3 +1,24 @@
+from datetime import datetime, timezone
+
+def news_weight(published):
+    """
+    Returns weight based on recency
+    """
+    try:
+        published_dt = datetime(*published[:6], tzinfo=timezone.utc)
+        days_old = (datetime.now(timezone.utc) - published_dt).days
+
+        if days_old <= 1:
+            return 1.0        # Today / yesterday
+        elif days_old <= 7:
+            return 0.7        # This week
+        elif days_old <= 30:
+            return 0.4        # This month
+        else:
+            return 0.2        # Old news
+    except:
+        return 0.5            # Safe fallback
+        
 def analyze_news(news_items):
     """
     Rule-based news sentiment analysis
@@ -28,14 +49,15 @@ def analyze_news(news_items):
     neutral = 0
 
     for n in news_items:
-        title = n.title.lower()
+    title = n.title.lower()
+    weight = news_weight(getattr(n, "published_parsed", None))
 
-        if any(k in title for k in positive_keywords):
-            positive += 1
-        elif any(k in title for k in negative_keywords):
-            negative += 1
-        else:
-            neutral += 1
+    if any(k in title for k in positive_keywords):
+        positive += weight
+    elif any(k in title for k in negative_keywords):
+        negative += weight
+    else:
+        neutral += weight
 
     if positive > negative:
         impact_label = "Positive"
