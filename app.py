@@ -12,6 +12,7 @@ from logic_confidence import (
     conviction_multiplier,
     conviction_label,
     counter_case_analysis,
+    stabilize_confidence,
     thesis_invalidation
 )
 
