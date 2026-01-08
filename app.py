@@ -402,6 +402,46 @@ confidence = (
 prev_score = score
 triggers = risk_triggers(fund, q_score)
 
+def counter_case_analysis(fund, score, rec, news_summary, q_score):
+    risks = []
+
+    # Valuation risk
+    if fund.get("PE") and fund["PE"] > 30:
+        risks.append("Valuation is elevated; upside may be limited if growth disappoints.")
+
+    # Leverage risk
+    if fund.get("DebtEquity") and fund["DebtEquity"] > 1.5:
+        risks.append("High leverage increases downside risk during earnings or rate shocks.")
+
+    # Growth slowdown risk
+    if fund.get("RevenueGrowth") and fund["RevenueGrowth"] < 0.08:
+        risks.append("Revenue growth is modest and may not justify premium expectations.")
+
+    # Quarterly risk
+    if q_score is not None and q_score < -5:
+        risks.append("Recent quarterly performance shows early signs of weakness.")
+
+    # News vs fundamentals conflict
+    if news_summary.get("impact_label") == "Positive" and score < 60:
+        risks.append("Positive news may be short-term and not fully supported by fundamentals.")
+
+    # Recommendation sanity check
+    if rec == "BUY" and score < 65:
+        risks.append("Buy recommendation carries lower conviction due to mixed signals.")
+
+    return risks
+
+counter_risks = counter_case_analysis(
+    fund,
+    score,
+    rec,
+    news_summary,
+    q_score
+)
+if counter_risks:
+    st.markdown("## ⚠️ Why You May Want to Be Cautious")
+    for r in counter_risks:
+        st.write(f"• {r}")
 # ==============================
 # AI EXPLANATION
 # ==============================
