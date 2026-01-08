@@ -358,7 +358,7 @@ if news_summary["impact_label"] == "Negative":
         news_conflicts.append(
             "Negative news despite healthy growth"
         )
-    if news_conflicts:
+        if news_conflicts:
     reasons.extend([f"⚠️ {c}" for c in news_conflicts])
     confidence_penalty += 1
     
