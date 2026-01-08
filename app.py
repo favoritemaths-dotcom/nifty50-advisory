@@ -305,6 +305,55 @@ if news_adj != 0:
 score = max(0, min(100, score + score_adjustment))
 reasons.extend(quarterly_reasons)
 
+def adjust_for_time_horizon(score, fund, q_score, time_horizon):
+    delta = 0
+    reasons = []
+
+    # SHORT TERM (3–6 months)
+    if time_horizon == "Short-term":
+        if q_score is not None and q_score < -5:
+            delta -= 6
+            reasons.append("Short-term outlook weakened by recent quarterly performance.")
+        if fund.get("PE") and fund["PE"] > 30:
+            delta -= 4
+            reasons.append("High valuation increases short-term downside risk.")
+        if fund.get("RevenueGrowth") and fund["RevenueGrowth"] > 0.15:
+            delta += 3
+            reasons.append("Strong growth momentum supports short-term optimism.")
+
+    # MEDIUM TERM (6–18 months)
+    elif time_horizon == "Medium-term":
+        if fund.get("ROE") and fund["ROE"] > 0.18:
+            delta += 4
+            reasons.append("Healthy profitability supports medium-term holding.")
+        if fund.get("DebtEquity") and fund["DebtEquity"] > 1.5:
+            delta -= 4
+            reasons.append("Elevated leverage may constrain medium-term returns.")
+
+    # LONG TERM (3–5 years)
+    elif time_horizon == "Long-term":
+        if fund.get("ROE") and fund["ROE"] > 0.18:
+            delta += 6
+            reasons.append("Strong ROE supports long-term compounding.")
+        if fund.get("RevenueGrowth") and fund["RevenueGrowth"] > 0.12:
+            delta += 5
+            reasons.append("Sustained growth supports long-term wealth creation.")
+        if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
+            delta -= 6
+            reasons.append("High leverage increases long-term balance-sheet risk.")
+
+    return delta, reasons
+
+# A11 – TIME HORIZON ADJUSTMENT
+th_delta, th_reasons = adjust_for_time_horizon(
+    score,
+    fund,
+    q_score,
+    time_horizon
+)
+
+score = max(0, min(100, score + th_delta))
+reasons.extend([f"⏳ {r}" for r in th_reasons])
 # ==============================
 # A5 – ANNUAL vs QUARTERLY CONTRADICTION CHECK
 # ==============================
