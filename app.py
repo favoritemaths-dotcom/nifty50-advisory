@@ -447,7 +447,8 @@ confidence = (
     if prev_confidence
     else new_confidence
 )
-
+# A12 – CONVICTION-WEIGHTED RECOMMENDATION
+final_rec = conviction_label(rec, confidence, score)
 prev_score = score
 triggers = risk_triggers(fund, q_score)
 
@@ -519,6 +520,34 @@ def conviction_multiplier(confidence):
     if "Medium" in confidence:
         return 0.7
     return 0.4
+
+def conviction_label(rec, confidence, score):
+    """
+    Enhances recommendation with conviction clarity
+    """
+    if rec == "BUY":
+        if "High" in confidence and score >= 75:
+            return "BUY (High Conviction)"
+        elif "Medium" in confidence:
+            return "BUY (Moderate Conviction)"
+        else:
+            return "BUY (Speculative)"
+
+    if rec == "HOLD":
+        if "High" in confidence:
+            return "HOLD (Strong Fundamentals)"
+        elif "Medium" in confidence:
+            return "HOLD (Watch Closely)"
+        else:
+            return "HOLD (Low Conviction)"
+
+    if rec == "SELL":
+        if "High" in confidence:
+            return "SELL (High Risk)"
+        else:
+            return "SELL (Caution Advised)"
+
+    return rec
 
 # ==============================
 # ALLOCATION ENGINE
