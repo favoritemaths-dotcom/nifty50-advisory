@@ -492,6 +492,11 @@ if counter_risks:
     for r in counter_risks:
         st.write(f"• {r}")
 # ==============================
+# A12 – CONVICTION-WEIGHTED RECOMMENDATION
+# ==============================
+final_rec = conviction_label(rec, confidence, score)
+
+# ==============================
 # AI EXPLANATION
 # ==============================
 st.markdown("## 🧠 AI Advisory Explanation")
@@ -504,10 +509,6 @@ explanation = generate_explanation(
     risk_profile,
     time_horizon
 )
-# ==============================
-# A12 – CONVICTION-WEIGHTED RECOMMENDATION
-# ==============================
-final_rec = conviction_label(rec, confidence, score)
 
 # ==============================
 # A12.3 – FINAL RECOMMENDATION DISPLAY
