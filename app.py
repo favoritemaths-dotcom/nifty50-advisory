@@ -20,6 +20,7 @@ from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
 from logic_confidence import confidence_band, risk_triggers
 from logic_market_regime import detect_market_regime
+from logic_portfolio import analyze_portfolio
 
 # ==============================
 # PAGE CONFIG
