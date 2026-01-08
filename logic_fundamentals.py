@@ -23,33 +23,26 @@ def evaluate_metric(name, value):
     if value is None:
         return "—"
 
-    if name == "ROE":
-        return "Strong" if value >= 0.18 else "Average" if value >= 0.12 else "Weak"
+    rules = {
+        "ROE": [(0.18,"Strong"),(0.12,"Average"),(0,"Weak")],
+        "DebtEquity": [(1,"Strong"),(2,"Average"),(10,"Weak")],
+        "InterestCover": [(3,"Strong"),(1.5,"Average"),(0,"Weak")],
+        "PE": [(25,"Reasonable"),(40,"Expensive"),(100,"Very Expensive")],
+        "RevenueGrowth": [(0.15,"Strong"),(0.05,"Moderate"),(0,"Weak")],
+        "EPSGrowth": [(0.15,"Strong"),(0.05,"Moderate"),(0,"Weak")]
+    }
 
-    if name == "DebtEquity":
-        return "Strong" if value <= 1 else "Average" if value <= 2 else "Weak"
-
-    if name == "InterestCover":
-        return "Strong" if value >= 3 else "Average" if value >= 1.5 else "Weak"
-
-    if name == "PE":
-        return "Reasonable" if value <= 25 else "Expensive" if value <= 40 else "Very Expensive"
-
-    if name in ["RevenueGrowth", "EPSGrowth"]:
-        return "Strong" if value >= 0.15 else "Moderate" if value >= 0.05 else "Weak"
-
+    for threshold,label in rules.get(name,[]):
+        if value >= threshold:
+            return label
     return "—"
 
 def detect_red_flags(fund):
     flags = []
-
-    if fund.get("DebtEquity") and fund["DebtEquity"] > 2.5:
+    if fund.get("DebtEquity",0) > 2.5:
         flags.append("Very high leverage")
-
-    if fund.get("InterestCover") and fund["InterestCover"] < 1.5:
-        flags.append("Weak interest coverage")
-
-    if fund.get("EPSGrowth") and fund["EPSGrowth"] < 0:
+    if fund.get("InterestCover",10) < 1.5:
+        flags.append("Low interest coverage")
+    if fund.get("EPSGrowth",1) < 0:
         flags.append("Negative earnings growth")
-
     return flags
