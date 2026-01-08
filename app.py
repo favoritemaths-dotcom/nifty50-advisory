@@ -561,7 +561,31 @@ st.metric("Investment Amount", f"₹{alloc_amt:,}")
 # ==============================
 st.markdown("### 🔍 Recommendation Confidence")
 st.info(confidence)
+# ================================
+# PORTFOLIO INTELLIGENCE
+# ================================
+from logic_portfolio import analyze_portfolio
 
+portfolio = [
+    {
+        "stock": stock,
+        "sector": fund.get("Sector", "Unknown"),
+        "allocation_pct": alloc_pct
+    }
+]
+
+portfolio_result = analyze_portfolio(portfolio, risk_profile)
+
+st.markdown("## 📊 Portfolio Intelligence")
+
+st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
+
+if portfolio_result["warnings"]:
+    for w in portfolio_result["warnings"]:
+        st.warning(w)
+
+for i in portfolio_result["insights"]:
+    st.info(i)
 # ==============================
 # FINAL NOTE
 # ==============================
