@@ -4,28 +4,21 @@ import yfinance as yf
 import feedparser
 import urllib.parse
 from pypdf import PdfReader
-from logic_news import analyze_news
-from logic_quarterly import analyze_quarterly_text
-from logic_confidence import (
-    confidence_band,
-    risk_triggers,
-    conviction_multiplier,
-    conviction_label,
-    counter_case_analysis,
-    stabilize_confidence,
-    thesis_invalidation
-)
 
+# ==============================
+# IMPORT LOGIC MODULES
+# ==============================
 from logic_fundamentals import (
     fetch_fundamentals,
     evaluate_metric,
     detect_red_flags
 )
-
 from logic_valuation import estimate_fair_value
+from logic_news import analyze_news
+from logic_quarterly import analyze_quarterly_text
 from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
-from logic_portfolio import analyze_portfolio
+from logic_confidence import confidence_band, risk_triggers
 from logic_market_regime import detect_market_regime
 
 # ==============================
@@ -50,7 +43,7 @@ df_all = load_nifty50()
 df = df_all.copy()
 
 # ==============================
-# SIDEBAR
+# SIDEBAR – FILTERS
 # ==============================
 st.sidebar.header("Filters")
 
@@ -88,7 +81,7 @@ risk_profile = st.sidebar.selectbox(
 )
 
 # ==============================
-# PRICE FETCHING
+# PRICE FETCHING (CMP)
 # ==============================
 YAHOO_MAP = {"M&M": "MM"}
 
@@ -184,11 +177,13 @@ quality_metrics = [
 
 for m in quality_metrics:
     val = fund.get(m)
+    label = evaluate_metric(m, val)
+    display = (
+        f"{round(val*100,2)}%" if val and "Growth" in m else
+        round(val, 2) if val is not None else "—"
+    )
+    st.write(f"**{m}:** {display} — {label}")
 
-    if val is None:
-        st.write(f"**{m}:** Data unavailable")
-    else:
-        st.write(f"**{m}:** {evaluate_metric(m, val)}")
 # ==============================
 # NEWS
 # ==============================
@@ -207,56 +202,22 @@ if not news:
     st.write("No recent news found.")
 else:
     c1, c2, c3 = st.columns(3)
-
-    c1.metric("Positive News", news_summary["positive"])
-    c2.metric("Neutral News", news_summary["neutral"])
-    c3.metric("Negative News", news_summary["negative"])
-
-    st.info(f"**Overall Impact:** {news_summary['impact_label']}")
+    c1.metric("Positive", news_summary["positive"])
+    c2.metric("Neutral", news_summary["neutral"])
+    c3.metric("Negative", news_summary["negative"])
+    st.info(f"Overall News Bias: **{news_summary['overall']}**")
 
     with st.expander("View Headlines"):
         for n in news:
             st.markdown(f"- [{n.title}]({n.link})")
 
 # ==============================
-# STEP 6 – NEWS INTELLIGENCE SIGNALS
-# ==============================
-
-news_bias = news_summary.get("impact_label", "Neutral")
-
-if news_bias == "Positive":
-    st.success("🟢 News sentiment supportive")
-elif news_bias == "Negative":
-    st.error("🔴 News sentiment adverse")
-else:
-    st.info("🟡 News sentiment neutral")
-
-# ==============================
-# STEP 6.1 – NEWS SCORE IMPACT
-# ==============================
-
-def news_score_adjustment(news_summary):
-    """
-    Converts news sentiment into a small score adjustment
-    """
-    impact = news_summary.get("impact_label", "Neutral")
-
-    if impact == "Positive":
-        return +3
-    elif impact == "Negative":
-        return -5
-    return 0
-    
-# ==============================
 # REPORT UPLOAD
 # ==============================
 st.markdown("### 📑 Company Reports")
 
 annual_pdf = st.file_uploader("Upload Annual Report (PDF)", type=["pdf"])
-quarterly_pdf = st.file_uploader(
-    "Upload Quarterly Report (PDF)",
-    type=["pdf"]
-)
+quarterly_pdf = st.file_uploader("Upload Quarterly Report (PDF)", type=["pdf"])
 
 def extract_text(pdf):
     if not pdf:
@@ -271,26 +232,13 @@ annual_text = extract_text(annual_pdf)
 quarterly_text = extract_text(quarterly_pdf)
 
 # ==============================
-# SCORING ENGINE
+# QUARTERLY INTELLIGENCE
 # ==============================
-
 q_score, q_signals = analyze_quarterly_text(quarterly_text)
 
 # ==============================
-# A4 – QUARTERLY INTELLIGENCE ADJUSTMENT
+# SCORING ENGINE
 # ==============================
-
-if q_score is not None:
-    score_adjustment = min(10, max(-10, q_score))
-else:
-    score_adjustment = 0
-
-quarterly_reasons = []
-
-if q_signals:
-    for s in q_signals:
-        quarterly_reasons.append(f"📄 Quarterly insight: {s}")
-        
 score, rec, reasons = score_stock(
     fund,
     news_summary,
@@ -299,194 +247,34 @@ score, rec, reasons = score_stock(
     risk_profile
 )
 
-# Apply news sentiment impact
-news_adj = news_score_adjustment(news_summary)
-score = max(0, min(100, score + news_adj))
-
-if news_adj != 0:
-    reasons.append(
-        f"News sentiment adjustment: {news_summary['impact_label']} ({news_adj:+d})"
-    )
-    
-# Apply quarterly score impact
-score = max(0, min(100, score + score_adjustment))
-reasons.extend(quarterly_reasons)
-
-def adjust_for_time_horizon(score, fund, q_score, time_horizon):
-    delta = 0
-    reasons = []
-
-    # SHORT TERM (3–6 months)
-    if time_horizon == "Short-term":
-        if q_score is not None and q_score < -5:
-            delta -= 6
-            reasons.append("Short-term outlook weakened by recent quarterly performance.")
-        if fund.get("PE") and fund["PE"] > 30:
-            delta -= 4
-            reasons.append("High valuation increases short-term downside risk.")
-        if fund.get("RevenueGrowth") and fund["RevenueGrowth"] > 0.15:
-            delta += 3
-            reasons.append("Strong growth momentum supports short-term optimism.")
-
-    # MEDIUM TERM (6–18 months)
-    elif time_horizon == "Medium-term":
-        if fund.get("ROE") and fund["ROE"] > 0.18:
-            delta += 4
-            reasons.append("Healthy profitability supports medium-term holding.")
-        if fund.get("DebtEquity") and fund["DebtEquity"] > 1.5:
-            delta -= 4
-            reasons.append("Elevated leverage may constrain medium-term returns.")
-
-    # LONG TERM (3–5 years)
-    elif time_horizon == "Long-term":
-        if fund.get("ROE") and fund["ROE"] > 0.18:
-            delta += 6
-            reasons.append("Strong ROE supports long-term compounding.")
-        if fund.get("RevenueGrowth") and fund["RevenueGrowth"] > 0.12:
-            delta += 5
-            reasons.append("Sustained growth supports long-term wealth creation.")
-        if fund.get("DebtEquity") and fund["DebtEquity"] > 2:
-            delta -= 6
-            reasons.append("High leverage increases long-term balance-sheet risk.")
-
-    return delta, reasons
-
-# A11 – TIME HORIZON ADJUSTMENT
-th_delta, th_reasons = adjust_for_time_horizon(
-    score,
-    fund,
-    q_score,
-    time_horizon
-)
-
-score = max(0, min(100, score + th_delta))
-reasons.extend([f"⏳ {r}" for r in th_reasons])
-# ==============================
-# A5 – ANNUAL vs QUARTERLY CONTRADICTION CHECK
-# ==============================
-
-contradictions = []
-
-# Annual strong signals
-annual_positive = (
-    fund.get("ROE") is not None and fund["ROE"] > 0.18
-) or (
-    fund.get("RevenueGrowth") is not None and fund["RevenueGrowth"] > 0.15
-)
-
-# Quarterly weak signals
-quarterly_negative = q_score is not None and q_score < -5
-
-if annual_positive and quarterly_negative:
-    contradictions.append(
-        "Strong annual fundamentals but recent quarterly performance shows weakness."
-    )
-if contradictions:
-    reasons.extend([f"⚠️ {c}" for c in contradictions])
-    confidence_penalty = 1
-else:
-    confidence_penalty = 0
+if q_score:
+    score = max(0, min(100, score + q_score))
+    for s in q_signals:
+        reasons.append(f"Quarterly insight: {s}")
 
 # ==============================
-# NEWS vs FUNDAMENTALS CONFLICT CHECK
+# CONFIDENCE & TRIGGERS
 # ==============================
-
-news_conflicts = []
-
-# Positive news but weak fundamentals
-if news_summary["impact_label"] == "Positive":
-    if fund.get("ROE") is not None and fund["ROE"] < 0.12:
-        news_conflicts.append(
-            "Positive news despite weak profitability (low ROE)."
-        )
-    if fund.get("DebtEquity") is not None and fund["DebtEquity"] > 1.5:
-        news_conflicts.append(
-            "Positive news but balance sheet leverage remains high."
-        )
-
-# Negative news but strong fundamentals
-if news_summary["impact_label"] == "Negative":
-    if fund.get("ROE") is not None and fund["ROE"] > 0.18:
-        news_conflicts.append(
-            "Negative news despite strong long-term profitability."
-        )
-    if fund.get("RevenueGrowth") is not None and fund["RevenueGrowth"] > 0.15:
-        news_conflicts.append(
-            "Negative news but revenue growth trend remains healthy."
-        )
-
-# Apply impact
-if news_conflicts:
-    reasons.extend([f"⚠️ {c}" for c in news_conflicts])
-    confidence_penalty += 1
-    
-# ==============================
-# STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
-# ==============================
-
 red_flags_count = len(detect_red_flags(fund))
 profile_warnings_count = len(
     detect_profile_mismatch(fund, risk_profile)
 )
 
-prev_confidence = confidence if 'confidence' in locals() else None
-
-new_confidence = confidence_band(
+confidence = confidence_band(
     score,
-    red_flags_count + confidence_penalty,
+    red_flags_count,
     profile_warnings_count
 )
 
-score_delta = score - prev_score if 'prev_score' in locals() else 10
-confidence = (
-    stabilize_confidence(prev_confidence, new_confidence, score_delta)
-    if prev_confidence
-    else new_confidence
-)
-
-prev_score = score
-triggers = risk_triggers(fund, q_score)
-
-counter_risks = counter_case_analysis(
-    fund,
-    score,
-    rec,
-    news_summary,
-    q_score
-)
-if counter_risks:
-    st.markdown("## ⚠️ Why You May Want to Be Cautious")
-    for r in counter_risks:
-        st.write(f"• {r}")
 # ==============================
-# A12 – CONVICTION-WEIGHTED RECOMMENDATION
+# MARKET REGIME
 # ==============================
-final_rec = conviction_label(rec, confidence, score)
-# ================================
-# MARKET REGIME DETECTION
-# ================================
-market = detect_market_regime()
-
-st.markdown("## 🌍 Market Regime")
-st.info(market["label"])
-# ================================
-# MARKET REGIME ADJUSTMENT
-# ================================
-if market["risk_bias"] == "Negative" and final_rec.startswith("BUY"):
-    final_rec = "HOLD (Market Risk)"
-
-if market["risk_bias"] == "Negative" and score < 65:
-    final_rec = "AVOID (Market Conditions)"
-
-if market["risk_bias"] == "Positive" and final_rec.startswith("HOLD") and score >= 70:
-    final_rec = "BUY (Favorable Market)"
-    
-invalidation_reasons = thesis_invalidation(
-    score,
-    q_score,
-    fund,
-    news_summary
+market = detect_market_regime(
+    index_trend="Down",
+    volatility="High"
 )
+
+regime_multiplier = market["risk_multiplier"]
 
 # ==============================
 # AI EXPLANATION
@@ -496,49 +284,31 @@ st.markdown("## 🧠 AI Advisory Explanation")
 explanation = generate_explanation(
     stock,
     score,
-    final_rec,
+    rec,
     reasons,
     risk_profile,
     time_horizon
 )
 
-# ==============================
-# A12.3 – FINAL RECOMMENDATION DISPLAY
-# ==============================
-st.markdown("## 📌 Final Recommendation")
-
-if "BUY" in final_rec:
-    st.success(final_rec)
-elif "HOLD" in final_rec:
-    st.warning(final_rec)
-else:
-    st.error(final_rec)
-# ==============================
-# A13 – THESIS INVALIDATION CHECK
-# ==============================
-
-if invalidation_reasons:
-    st.markdown("### ❌ When This Recommendation Breaks")
-    for r in invalidation_reasons:
-        st.write(f"• {r}")
-else:
-    st.markdown("### ✅ Thesis Currently Intact")
-# ==============================
-# AI EXPLANATION
-# ==============================
-st.markdown("## 🧠 AI Advisory Explanation")
-
 st.markdown(explanation)
-st.markdown("### 🔁 What Could Change This Recommendation?")
-for t in triggers:
-    st.write(f"• {t}")
+
+st.markdown("### 🌍 Market Regime Impact")
+st.info(f"{market['regime']} Market — {market['note']}")
 
 # ==============================
+# CONVICTION MULTIPLIER
+# ==============================
+def conviction_multiplier(confidence):
+    if "High" in confidence:
+        return 1.0
+    if "Medium" in confidence:
+        return 0.7
+    return 0.4
+
 # ==============================
 # ALLOCATION ENGINE
 # ==============================
-def suggest_allocation(score, rec, risk_profile, total_investment, confidence):
-    # Base allocation by recommendation
+def suggest_allocation(score, rec, risk_profile, total_investment, confidence, regime_multiplier):
     if rec == "BUY":
         alloc_pct = 12
     elif rec == "HOLD":
@@ -546,16 +316,14 @@ def suggest_allocation(score, rec, risk_profile, total_investment, confidence):
     else:
         alloc_pct = 2
 
-    # Score influence
     if score >= 80:
         alloc_pct += 2
     elif score < 50:
         alloc_pct -= 2
 
-    # Apply conviction multiplier
     alloc_pct *= conviction_multiplier(confidence)
+    alloc_pct *= regime_multiplier
 
-    # Risk caps
     risk_caps = {
         "Conservative": 15,
         "Moderate": 25,
@@ -569,7 +337,12 @@ def suggest_allocation(score, rec, risk_profile, total_investment, confidence):
     return alloc_pct, alloc_amt
 
 alloc_pct, alloc_amt = suggest_allocation(
-    score, rec, risk_profile, investment_amount, confidence
+    score,
+    rec,
+    risk_profile,
+    investment_amount,
+    confidence,
+    regime_multiplier
 )
 
 st.markdown("## 💼 Suggested Portfolio Allocation")
@@ -577,36 +350,13 @@ st.metric("Allocation %", f"{alloc_pct}%")
 st.metric("Investment Amount", f"₹{alloc_amt:,}")
 
 # ==============================
-# CONFIDENCE & TRIGGERS
+# FINAL CONFIDENCE & TRIGGERS
 # ==============================
 st.markdown("### 🔍 Recommendation Confidence")
 st.info(confidence)
-# ================================
-# PORTFOLIO INTELLIGENCE
-# ================================
-from logic_portfolio import analyze_portfolio
 
-portfolio = [
-    {
-        "stock": stock,
-        "sector": fund.get("Sector", "Unknown"),
-        "allocation_pct": alloc_pct
-    }
-]
+st.markdown("### 🔁 What Could Change This Recommendation?")
+for t in risk_triggers(fund, q_score):
+    st.write(f"• {t}")
 
-portfolio_result = analyze_portfolio(portfolio, risk_profile)
-
-st.markdown("## 📊 Portfolio Intelligence")
-
-st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
-
-if portfolio_result["warnings"]:
-    for w in portfolio_result["warnings"]:
-        st.warning(w)
-
-for i in portfolio_result["insights"]:
-    st.info(i)
-# ==============================
-# FINAL NOTE
-# ==============================
 st.caption("Prices may be delayed. For private analytical use only.")
