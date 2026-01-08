@@ -3,14 +3,7 @@ def analyze_news(news_items):
     Rule-based news sentiment analysis
     Returns counts + overall impact label
     """
-# Safety default: always return consistent structure
-    if not news_items:
-        return {
-            "positive": 0,
-            "neutral": 0,
-            "negative": 0,
-            "impact_label": "Neutral"
-        }
+    
     positive_keywords = [
         "profit", "growth", "expansion", "order", "approval",
         "wins", "record", "strong", "upgrade", "acquisition"
