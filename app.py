@@ -7,6 +7,7 @@ from pypdf import PdfReader
 from logic_news import analyze_news
 from logic_quarterly import analyze_quarterly_text
 from logic_confidence import confidence_band, risk_triggers
+from logic_confidence import thesis_invalidation
 
 # ==============================
 # IMPORT LOGIC MODULES
