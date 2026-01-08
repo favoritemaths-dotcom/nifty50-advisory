@@ -426,17 +426,6 @@ profile_warnings_count = len(
     detect_profile_mismatch(fund, risk_profile)
 )
 
-def stabilize_confidence(prev_confidence, new_confidence, score_delta):
-    """
-    Prevents frequent confidence flip-flops.
-    """
-
-    # If score change is small, freeze confidence
-    if abs(score_delta) < 5:
-        return prev_confidence
-
-    return new_confidence
-
 prev_confidence = confidence if 'confidence' in locals() else None
 
 new_confidence = confidence_band(
