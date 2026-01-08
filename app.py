@@ -56,10 +56,18 @@ sector = st.sidebar.selectbox(
 if sector != "All":
     df = df[df["Sector"] == sector]
 
-stock = st.sidebar.selectbox(
-    "Select Stock",
-    df["Symbol"].tolist()
-)
+if not portfolio_mode:
+    stock = st.sidebar.selectbox(
+        "Select Stock",
+        df["Symbol"].tolist()
+    )
+    selected_stocks = [stock]
+else:
+    selected_stocks = st.sidebar.multiselect(
+        "Select Stocks for Portfolio",
+        df["Symbol"].tolist(),
+        default=df["Symbol"].tolist()[:3]
+    )
 
 st.sidebar.markdown("---")
 st.sidebar.header("Investor Profile")
@@ -79,6 +87,12 @@ time_horizon = st.sidebar.selectbox(
 risk_profile = st.sidebar.selectbox(
     "Risk Profile",
     ["Conservative", "Moderate", "Aggressive"]
+)
+
+st.sidebar.markdown("---")
+portfolio_mode = st.sidebar.checkbox(
+    "Enable Portfolio Mode",
+    value=False
 )
 
 # ==============================
@@ -347,6 +361,23 @@ alloc_pct, alloc_amt = suggest_allocation(
 )
 
 # ==============================
+# BUILD PORTFOLIO STRUCTURE
+# ==============================
+
+portfolio = []
+
+equal_alloc = round(alloc_pct / len(selected_stocks), 2) if selected_stocks else 0
+
+for s in selected_stocks:
+    r = df_all[df_all["Symbol"] == s].iloc[0]
+
+    portfolio.append({
+        "stock": s,
+        "sector": r.get("Sector", "Unknown"),
+        "allocation_pct": equal_alloc
+    })
+
+# ==============================
 # PORTFOLIO INTELLIGENCE
 # ==============================
 
@@ -376,6 +407,13 @@ for i in portfolio_result["insights"]:
 st.markdown("## 💼 Suggested Portfolio Allocation")
 st.metric("Allocation %", f"{alloc_pct}%")
 st.metric("Investment Amount", f"₹{alloc_amt:,}")
+
+st.markdown("### 📋 Portfolio Composition")
+
+st.dataframe(
+    pd.DataFrame(portfolio),
+    use_container_width=True
+)
 
 # ==============================
 # FINAL CONFIDENCE & TRIGGERS
