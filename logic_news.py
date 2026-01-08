@@ -3,14 +3,16 @@ def analyze_news(news_items):
     Rule-based news sentiment analysis
     Returns counts + overall impact label
     """
-   # Safety default: always return consistent structure
+
+    # Safety default: always return consistent structure
     if not news_items:
         return {
             "positive": 0,
             "neutral": 0,
             "negative": 0,
             "impact_label": "Neutral"
-        } 
+        }
+
     positive_keywords = [
         "profit", "growth", "expansion", "order", "approval",
         "wins", "record", "strong", "upgrade", "acquisition"
@@ -36,10 +38,18 @@ def analyze_news(news_items):
             neutral += 1
 
     if positive > negative:
-    impact_label = "🟢 Positive"
-elif negative > positive:
-    impact_label = "🔴 Negative"
-else:
+        impact_label = "Positive"
+    elif negative > positive:
+        impact_label = "Negative"
+    else:
+        impact_label = "Neutral"
+
+    return {
+        "positive": positive,
+        "negative": negative,
+        "neutral": neutral,
+        "impact_label": impact_label
+    }
     impact_label = "🟡 Neutral"
 
     return {
