@@ -332,6 +332,37 @@ else:
     confidence_penalty = 0
 
 # ==============================
+# B – NEWS vs FUNDAMENTALS CONFLICT CHECK
+# ==============================
+
+news_conflicts = []
+
+# Positive news but weak fundamentals
+if news_summary["impact_label"] == "Positive":
+    if fund.get("ROE") is not None and fund["ROE"] < 0.12:
+        news_conflicts.append(
+            "Positive news despite weak return on equity"
+        )
+    if fund.get("DebtEquity") is not None and fund["DebtEquity"] > 1.5:
+        news_conflicts.append(
+            "Positive news but elevated leverage"
+        )
+
+# Negative news but strong fundamentals
+if news_summary["impact_label"] == "Negative":
+    if fund.get("ROE") is not None and fund["ROE"] > 0.18:
+        news_conflicts.append(
+            "Negative news despite strong profitability"
+        )
+    if fund.get("RevenueGrowth") is not None and fund["RevenueGrowth"] > 0.15:
+        news_conflicts.append(
+            "Negative news despite healthy growth"
+        )
+    if news_conflicts:
+    reasons.extend([f"⚠️ {c}" for c in news_conflicts])
+    confidence_penalty += 1
+    
+# ==============================
 # STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
 # ==============================
 
