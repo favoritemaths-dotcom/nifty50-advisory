@@ -58,21 +58,21 @@ def analyze_news(news_items):
         negative += weight
     else:
         neutral += weight
-        
+
 positive = round(positive)
 negative = round(negative)
 neutral = round(neutral)
 
-    if positive > negative:
-        impact_label = "Positive"
-    elif negative > positive:
-        impact_label = "Negative"
-    else:
-        impact_label = "Neutral"
+if positive > negative:
+    impact_label = "Positive"
+elif negative > positive:
+    impact_label = "Negative"
+else:
+    impact_label = "Neutral"
 
-    return {
-        "positive": positive,
-        "negative": negative,
-        "neutral": neutral,
-        "impact_label": impact_label
-    }
+return {
+    "positive": positive,
+    "negative": negative,
+    "neutral": neutral,
+    "impact_label": impact_label
+}
