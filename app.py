@@ -447,8 +447,7 @@ confidence = (
     if prev_confidence
     else new_confidence
 )
-# A12 – CONVICTION-WEIGHTED RECOMMENDATION
-final_rec = conviction_label(rec, confidence, score)
+
 prev_score = score
 triggers = risk_triggers(fund, q_score)
 
@@ -500,11 +499,32 @@ st.markdown("## 🧠 AI Advisory Explanation")
 explanation = generate_explanation(
     stock,
     score,
-    rec,
+    final_rec,
     reasons,
     risk_profile,
     time_horizon
 )
+# ==============================
+# A12 – CONVICTION-WEIGHTED RECOMMENDATION
+# ==============================
+final_rec = conviction_label(rec, confidence, score)
+
+# ==============================
+# A12.3 – FINAL RECOMMENDATION DISPLAY
+# ==============================
+st.markdown("## 📌 Final Recommendation")
+
+if "BUY" in final_rec:
+    st.success(final_rec)
+elif "HOLD" in final_rec:
+    st.warning(final_rec)
+else:
+    st.error(final_rec)
+
+# ==============================
+# AI EXPLANATION
+# ==============================
+st.markdown("## 🧠 AI Advisory Explanation")
 
 st.markdown(explanation)
 st.markdown("### 🔁 What Could Change This Recommendation?")
