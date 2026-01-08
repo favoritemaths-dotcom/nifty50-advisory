@@ -593,6 +593,12 @@ if news_summary.get("impact_label") == "Negative" and score < 60:
     invalidation_reasons.append(
         "Sustained negative news flow combined with weakening fundamentals."
     )
+    if invalidation_reasons:
+    st.markdown("### ❌ When This Recommendation Breaks")
+    for r in invalidation_reasons:
+        st.write(f"• {r}")
+else:
+    st.markdown("### ✅ Thesis Currently Intact")
 # ==============================
 # AI EXPLANATION
 # ==============================
