@@ -534,6 +534,12 @@ if counter_risks:
 # A12 – CONVICTION-WEIGHTED RECOMMENDATION
 # ==============================
 final_rec = conviction_label(rec, confidence, score)
+invalidation_reasons = thesis_invalidation(
+    score,
+    q_score,
+    fund,
+    news_summary
+)
 
 # ==============================
 # AI EXPLANATION
