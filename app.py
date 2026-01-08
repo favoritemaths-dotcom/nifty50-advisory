@@ -359,8 +359,8 @@ if news_summary["impact_label"] == "Negative":
             "Negative news despite healthy growth"
         )
     if news_conflicts:
-    reasons.extend([f"⚠️ {c}" for c in news_conflicts])
-    confidence_penalty += 1
+        reasons.extend([f"⚠️ {c}" for c in news_conflicts])
+        confidence_penalty += 1
     
 # ==============================
 # STEP 5.2 – QUARTERLY SCORE ADJUSTMENT
