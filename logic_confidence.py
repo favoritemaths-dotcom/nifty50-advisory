@@ -28,3 +28,23 @@ def risk_triggers(fund, q_score):
         triggers.append("Material change in fundamentals or industry outlook")
 
     return triggers
+
+def thesis_invalidation(score, q_score, fund, news_summary):
+    reasons = []
+
+    if score < 45:
+        reasons.append("Overall score dropped below 45")
+
+    if q_score is not None and q_score < -8:
+        reasons.append("Severe quarterly deterioration")
+
+    if fund.get("ROE") is not None and fund["ROE"] < 0.10:
+        reasons.append("ROE below acceptable threshold")
+
+    if fund.get("DebtEquity") is not None and fund["DebtEquity"] > 2:
+        reasons.append("Leverage risk increased materially")
+
+    if news_summary.get("impact_label") == "Negative" and score < 60:
+        reasons.append("Negative news flow with weakening fundamentals")
+
+    return reasons
