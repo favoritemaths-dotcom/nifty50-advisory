@@ -1,70 +1,69 @@
+# logic_portfolio.py
+
 def analyze_portfolio(portfolio, risk_profile):
     """
-    portfolio: list of dicts
-        [
-          {
-            "stock": "INFY",
-            "sector": "IT",
-            "allocation_pct": 18
-          }
-        ]
-    risk_profile: Conservative / Moderate / Aggressive
+    Portfolio-level intelligence
+    Works for single-stock or multi-stock portfolios
     """
 
-    insights = []
+    risk_score = 0
     warnings = []
+    insights = []
 
-    # -----------------------------
-    # 1. Allocation sanity check
-    # -----------------------------
-    total_alloc = sum(p["allocation_pct"] for p in portfolio)
+    total_alloc = sum(p.get("allocation_pct", 0) for p in portfolio)
 
-    if total_alloc < 90:
-        warnings.append(f"High cash holding detected ({100-total_alloc:.1f}%)")
-    elif total_alloc > 105:
-        warnings.append("Portfolio allocation exceeds 100%")
-
-    # -----------------------------
-    # 2. Sector concentration
-    # -----------------------------
-    sector_map = {}
-    for p in portfolio:
-        sector_map[p["sector"]] = sector_map.get(p["sector"], 0) + p["allocation_pct"]
-
-    max_sector = max(sector_map.items(), key=lambda x: x[1])
-
-    if max_sector[1] > 40:
+    # -------------------------
+    # Allocation sanity check
+    # -------------------------
+    if total_alloc > 100:
         warnings.append(
-            f"High concentration in {max_sector[0]} sector ({max_sector[1]:.1f}%)"
+            "Total allocation exceeds 100%. Consider reducing exposure."
         )
 
-    # -----------------------------
-    # 3. Diversification check
-    # -----------------------------
-    if len(portfolio) < 4:
-        warnings.append("Portfolio may be under-diversified")
-    elif len(portfolio) > 12:
-        warnings.append("Portfolio may be over-diversified")
+    # -------------------------
+    # Sector concentration
+    # -------------------------
+    sector_map = {}
+    for p in portfolio:
+        sector = p.get("sector", "Unknown")
+        sector_map.setdefault(sector, 0)
+        sector_map[sector] += p.get("allocation_pct", 0)
 
-    # -----------------------------
-    # 4. Risk profile alignment
-    # -----------------------------
-    if risk_profile == "Conservative" and max_sector[1] > 30:
-        warnings.append("Sector exposure too high for Conservative profile")
+    for sector, alloc in sector_map.items():
+        if alloc > 50:
+            warnings.append(
+                f"High concentration in {sector} sector ({alloc}%)."
+            )
+            risk_score += 2
 
-    if risk_profile == "Aggressive" and max_sector[1] < 20:
-        insights.append("Aggressive profile with well-spread exposure")
+    # -------------------------
+    # Risk profile alignment
+    # -------------------------
+    if risk_profile == "Conservative" and total_alloc > 60:
+        warnings.append(
+            "High overall equity exposure for a conservative profile."
+        )
+        risk_score += 2
 
-    # -----------------------------
-    # 5. Portfolio risk score (simple)
-    # -----------------------------
-    risk_score = 100
-    risk_score -= len(warnings) * 8
-    risk_score = max(40, risk_score)
+    if risk_profile == "Aggressive" and total_alloc < 40:
+        insights.append(
+            "Portfolio exposure appears conservative for an aggressive profile."
+        )
+
+    # -------------------------
+    # Normalize risk score
+    # -------------------------
+    risk_score = min(risk_score, 10)
+
+    if risk_score <= 2:
+        insights.append("Portfolio risk is well balanced.")
+    elif risk_score <= 5:
+        insights.append("Portfolio risk is moderate.")
+    else:
+        insights.append("Portfolio risk is elevated.")
 
     return {
         "risk_score": risk_score,
-        "sector_exposure": sector_map,
         "warnings": warnings,
         "insights": insights
     }
