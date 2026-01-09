@@ -354,28 +354,25 @@ if not portfolio_mode:
         )
     )
 # ==============================
-# THESIS INVALIDATION / RISK TRIGGERS
+# THESIS INVALIDATION / RISK TRIGGERS (Single Stock Only)
 # ==============================
 st.markdown("### ⚠ What Could Change This Recommendation?")
 
-if portfolio_mode:
-    triggers = portfolio_risk_triggers(
-        portfolio_result=portfolio_result,
-        market=market
-    )
-else:
+if not portfolio_mode:
     from logic_risk_triggers import risk_triggers
+
     triggers = risk_triggers(
         fund=fund,
         score=score,
         market=market
     )
 
-if not triggers:
-    st.success("No major downside triggers identified.")
-else:
-    for t in triggers:
-        st.write(f"• {t}")
+    st.markdown("### ⚠️ What Could Change This Recommendation?")
+    if not triggers:
+        st.success("No major downside triggers identified.")
+    else:
+        for t in triggers:
+            st.write(f"• {t}")
 
     # ---------------------------------------------------
     # ALLOCATION ENGINE
@@ -455,6 +452,24 @@ for w in portfolio_result["warnings"]:
 for i in portfolio_result["insights"]:
     st.info(i)
 
+# ==============================
+# PORTFOLIO RISK TRIGGERS
+# ==============================
+
+if portfolio_mode:
+    st.markdown("### ⚠️ Portfolio Risk Triggers")
+
+    triggers = portfolio_risk_triggers(
+        portfolio_result=portfolio_result,
+        market=market
+    )
+
+    if not triggers:
+        st.success("No major portfolio-level risk triggers detected.")
+    else:
+        for t in triggers:
+            st.write(f"• {t}")
+            
 # -------------------------------
 # FINAL PORTFOLIO RECOMMENDATION
 # -------------------------------
