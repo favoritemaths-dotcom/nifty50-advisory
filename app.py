@@ -406,6 +406,7 @@ st.markdown("## 📊 Portfolio Intelligence Summary")
 
 from logic_portfolio import (
     build_portfolio,
+    analyze_portfolio,
     portfolio_final_recommendation,
     portfolio_confidence_band,
     adjust_for_market_regime
