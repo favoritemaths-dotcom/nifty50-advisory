@@ -514,6 +514,30 @@ portfolio_confidence = portfolio_confidence_band(
 st.markdown("### 🎯 Portfolio Confidence")
 st.info(portfolio_confidence)
 
+# ==================================
+# PORTFOLIO REBALANCING SIGNAL
+# ==================================
+
+from logic_rebalancing import portfolio_rebalancing_signal
+
+st.markdown("### 🔄 Portfolio Rebalancing Signal")
+
+rebalance_action, rebalance_reasons = portfolio_rebalancing_signal(
+    portfolio_result=portfolio_result,
+    market=market,
+    confidence=portfolio_confidence
+)
+
+if rebalance_action == "REBALANCE NOW":
+    st.error(f"🔄 {rebalance_action}")
+elif rebalance_action == "MONITOR":
+    st.warning(f"⏳ {rebalance_action}")
+else:
+    st.success(f"✅ {rebalance_action}")
+
+for r in rebalance_reasons:
+    st.write(f"• {r}")
+    
 # -------------------------------
 # MARKET REGIME ADJUSTMENT
 # -------------------------------
