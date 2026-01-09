@@ -500,6 +500,28 @@ deployment = capital_deployment_plan(
 )
 
 st.dataframe(deployment, use_container_width=True)
+
+# ----------------------------------------
+# PORTFOLIO STRESS TEST
+# ----------------------------------------
+st.markdown("## 🚨 Portfolio Stress Test")
+
+from logic_portfolio_stress import portfolio_stress_test
+
+stress = portfolio_stress_test(portfolio, market)
+
+col1, col2, col3 = st.columns(3)
+col1.metric("📉 Correction Drawdown", f"{stress['Correction Drawdown %']}%")
+col2.metric("🐻 Bear Market Drawdown", f"{stress['Bear Market Drawdown %']}%")
+col3.metric("⚠️ Stress Rating", stress["Stress Rating"])
+
+if stress["Stress Rating"] == "HIGH":
+    st.error("High downside risk in severe market conditions.")
+elif stress["Stress Rating"] == "MEDIUM":
+    st.warning("Moderate drawdown risk. Position sizing matters.")
+else:
+    st.success("Portfolio shows defensive resilience.")
+    
 # ==================================
 # PORTFOLIO PERFORMANCE SIMULATION
 # ==================================
