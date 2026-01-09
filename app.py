@@ -91,9 +91,10 @@ risk_profile = st.sidebar.selectbox(
 # ==============================
 # PRICE FETCHING (CMP)
 # ==============================
-YAHOO_SYMBOL_MAP = {
-    "BAJAJ-AUTO": "BAJAJ-AUTO",
-    "TATAMOTORS": "TMPV",
+YAHOO_MAP = {
+    "M&M": "MM",
+    "TATAMOTORS": "TATAMOTORS",
+    "RELIANCE": "RELIANCE"
 }
 
 @st.cache_data(ttl=300)
