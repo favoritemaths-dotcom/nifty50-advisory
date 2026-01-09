@@ -21,7 +21,12 @@ from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
 from logic_confidence import confidence_band, risk_triggers, conviction_label
 from logic_market_regime import detect_market_regime
-from logic_portfolio import analyze_portfolio
+from logic_portfolio import (
+    build_portfolio,
+    portfolio_final_recommendation,
+    portfolio_confidence_band,
+    adjust_for_market_regime
+)
 
 # ==============================
 # PAGE CONFIG
