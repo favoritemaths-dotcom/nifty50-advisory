@@ -92,18 +92,13 @@ def portfolio_confidence_band(portfolio_score, warning_count):
 
 
 def adjust_for_market_regime(portfolio_action, market):
-    """
-    Market regime-aware adjustment
-    """
     regime = market.get("regime", "Neutral")
-    adjusted_action = portfolio_action
 
     if regime in ["Risk-Off", "Bearish", "High Volatility"]:
         if portfolio_action == "BUY":
-            adjusted_action = "HOLD / ACCUMULATE SLOWLY"
-
+            return "HOLD / SELECTIVE BUY"
     elif regime in ["Risk-On", "Bullish", "Low Volatility"]:
         if portfolio_action == "HOLD":
-            adjusted_action = "BUY ON DIPS"
+            return "BUY ON DIPS"
 
-    return adjusted_action
+    return portfolio_action
