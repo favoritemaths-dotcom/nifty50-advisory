@@ -95,6 +95,14 @@ risk_profile = st.sidebar.selectbox(
     ["Conservative", "Moderate", "Aggressive"]
 )
 
+# ===============================
+# MARKET REGIME (GLOBAL – REQUIRED)
+# ===============================
+market = detect_market_regime(
+    index_trend="Neutral",
+    volatility="Normal"
+)
+
 # ==============================
 # PRICE FETCHING (CMP)
 # ==============================
