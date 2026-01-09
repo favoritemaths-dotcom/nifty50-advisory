@@ -299,6 +299,20 @@ if not portfolio_mode:
         profile_warnings_count
     )
 
+    # ==============================
+    # FINAL RECOMMENDATION
+    # ==============================
+    st.markdown("## 📌 Final Recommendation")
+
+    final_text = f"{rec} ({confidence})"
+
+    if rec == "BUY":
+        st.success(final_text)
+    elif rec == "HOLD":
+        st.warning(final_text)
+    else:
+        st.error(final_text)
+
     # ---------------------------------------------------
     # MARKET REGIME
     # ---------------------------------------------------
