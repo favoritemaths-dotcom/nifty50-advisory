@@ -26,6 +26,7 @@ from logic_portfolio import (
     build_portfolio,
     portfolio_final_recommendation,
     portfolio_confidence_band,
+    portfolio_risk_triggers,
     adjust_for_market_regime
 )
 
