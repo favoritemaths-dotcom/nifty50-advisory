@@ -433,9 +433,6 @@ else:
     portfolio_rec = "REDUCE"
     st.error(f"REDUCE – Elevated portfolio risk (Score: {portfolio_score})")
 
-st.markdown("### 📋 Portfolio Composition")
-st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
-
 # ==============================
 # PORTFOLIO CONFIDENCE BAND
 # ==============================
@@ -488,6 +485,21 @@ else:
 
 st.info(f"**Market Regime:** {regime} — {regime_note}")
 
+# ==============================
+# FINAL PORTFOLIO COMPOSITION
+# ==============================
+
+st.markdown("## 📊 Final Portfolio Composition")
+
+st.caption(
+    f"Action: **{adjusted_portfolio_action}** | "
+    f"Market Regime: **{regime}**"
+)
+
+st.dataframe(
+    pd.DataFrame(portfolio),
+    use_container_width=True
+)
 # ==============================
 # FINAL REMARKS
 # ==============================
