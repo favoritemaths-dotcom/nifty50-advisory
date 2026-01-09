@@ -437,6 +437,27 @@ st.markdown("### 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
 
 # ==============================
+# PORTFOLIO CONFIDENCE BAND
+# ==============================
+st.markdown("### 🔐 Portfolio Confidence Level")
+
+portfolio_warnings_count = len(portfolio_result.get("warnings", []))
+
+if portfolio_score >= 70 and portfolio_warnings_count == 0:
+    portfolio_confidence = "High Confidence"
+elif portfolio_score >= 50 and portfolio_warnings_count <= 2:
+    portfolio_confidence = "Medium Confidence"
+else:
+    portfolio_confidence = "Low Confidence"
+
+if portfolio_confidence == "High Confidence":
+    st.success(f"🟢 {portfolio_confidence}")
+elif portfolio_confidence == "Medium Confidence":
+    st.warning(f"🟡 {portfolio_confidence}")
+else:
+    st.error(f"🔴 {portfolio_confidence}")
+
+# ==============================
 # FINAL REMARKS
 # ==============================
 st.markdown("### 🔍 Confidence Level")
