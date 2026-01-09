@@ -485,6 +485,24 @@ elif portfolio_action == "HOLD":
 else:
     st.error(f"REDUCE – {portfolio_reason}")
 
+# =====================================
+# CAPITAL DEPLOYMENT PLAN
+# =====================================
+st.markdown("## 💰 Capital Deployment Plan")
+
+from logic_capital_deployment import capital_deployment_plan
+
+deployment = capital_deployment_plan(
+    recommendation=portfolio_action,
+    confidence=portfolio_confidence,
+    time_horizon=time_horizon,
+    investment_amount=investment_amount
+)
+
+st.dataframe(deployment, use_container_width=True)
+
+st.caption("Deployment plan is indicative and based on risk, conviction, and market conditions.")
+
 # -------------------------------
 # CONFIDENCE BAND
 # -------------------------------
