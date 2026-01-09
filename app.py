@@ -494,7 +494,7 @@ from logic_capital_deployment import capital_deployment_plan
 
 deployment = capital_deployment_plan(
     recommendation=portfolio_action,
-    confidence=portfolio_confidence,
+    confidence=portfolio_result["risk_score"],
     time_horizon=time_horizon,
     investment_amount=investment_amount
 )
