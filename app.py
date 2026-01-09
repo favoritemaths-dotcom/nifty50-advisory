@@ -352,6 +352,24 @@ if not portfolio_mode:
             time_horizon
         )
     )
+# ==============================
+# THESIS INVALIDATION / RISK TRIGGERS
+# ==============================
+st.markdown("### ⚠ What Could Change This Recommendation?")
+
+from logic_risk_triggers import risk_triggers
+
+triggers = risk_triggers(
+    fund=fund,
+    score=score,
+    market=market
+)
+
+if not triggers:
+    st.success("No major downside triggers identified at this time.")
+else:
+    for t in triggers:
+        st.write(f"• {t}")
 
     # ---------------------------------------------------
     # ALLOCATION ENGINE
