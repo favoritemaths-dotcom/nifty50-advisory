@@ -1,6 +1,18 @@
 def detect_market_regime(index_trend="Neutral", volatility="Normal"):
-    if index_trend=="Down" or volatility=="High":
-        return {"regime":"Bear","risk_multiplier":0.7,"note":"Bear market risk"}
-    if index_trend=="Up":
-        return {"regime":"Bull","risk_multiplier":1.2,"note":"Bull market tailwind"}
-    return {"regime":"Neutral","risk_multiplier":1.0,"note":"Neutral market"}
+    if index_trend == "Down" or volatility == "High":
+        return {
+            "regime": "Bear Market",
+            "risk_multiplier": 0.8,
+            "note": "Market risk-off conditions"
+        }
+    if index_trend == "Up":
+        return {
+            "regime": "Bull Market",
+            "risk_multiplier": 1.2,
+            "note": "Market risk-on conditions"
+        }
+    return {
+        "regime": "Neutral Market",
+        "risk_multiplier": 1.0,
+        "note": "Range-bound or balanced market"
+    }
