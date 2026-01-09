@@ -2,21 +2,61 @@ import yfinance as yf
 
 def fetch_fundamentals(symbol):
     try:
-        info = yf.Ticker(symbol + ".NS").info
-        return {
-            "PE": info.get("trailingPE"),
-            "PB": info.get("priceToBook"),
-            "EV_EBITDA": info.get("enterpriseToEbitda"),
-            "ROE": info.get("returnOnEquity"),
-            "ROCE": info.get("returnOnAssets"),
-            "NetMargin": info.get("profitMargins"),
-            "DebtEquity": info.get("debtToEquity"),
-            "InterestCover": info.get("interestCoverage"),
-            "CurrentRatio": info.get("currentRatio"),
-            "RevenueGrowth": info.get("revenueGrowth"),
-            "EPSGrowth": info.get("earningsGrowth"),
-        }
-    except:
+        ticker = yf.Ticker(symbol + ".NS")
+        info = ticker.info
+        fin = ticker.financials
+        bs = ticker.balance_sheet
+
+        fundamentals = {}
+
+        # ======================
+        # Primary Yahoo metrics
+        # ======================
+        fundamentals["PE"] = info.get("trailingPE")
+        fundamentals["PB"] = info.get("priceToBook")
+        fundamentals["EV_EBITDA"] = info.get("enterpriseToEbitda")
+        fundamentals["ROE"] = info.get("returnOnEquity")
+        fundamentals["ROCE"] = info.get("returnOnAssets")
+        fundamentals["NetMargin"] = info.get("profitMargins")
+        fundamentals["DebtEquity"] = info.get("debtToEquity")
+        fundamentals["InterestCover"] = info.get("interestCoverage")
+        fundamentals["RevenueGrowth"] = info.get("revenueGrowth")
+        fundamentals["EPSGrowth"] = info.get("earningsGrowth")
+
+        # ======================
+        # FALLBACK CALCULATIONS
+        # ======================
+
+        # ROE fallback
+        if fundamentals["ROE"] is None:
+            try:
+                net_income = fin.loc["Net Income"].iloc[0]
+                equity = bs.loc["Total Stockholder Equity"].iloc[0]
+                fundamentals["ROE"] = net_income / equity if equity else None
+            except:
+                pass
+
+        # Debt/Equity fallback
+        if fundamentals["DebtEquity"] is None:
+            try:
+                debt = bs.loc["Total Debt"].iloc[0]
+                equity = bs.loc["Total Stockholder Equity"].iloc[0]
+                fundamentals["DebtEquity"] = debt / equity if equity else None
+            except:
+                pass
+
+        # Net Margin fallback
+        if fundamentals["NetMargin"] is None:
+            try:
+                net_income = fin.loc["Net Income"].iloc[0]
+                revenue = fin.loc["Total Revenue"].iloc[0]
+                fundamentals["NetMargin"] = net_income / revenue if revenue else None
+            except:
+                pass
+
+        return fundamentals
+
+    except Exception:
         return {}
 
 def evaluate_metric(name, value):
