@@ -92,28 +92,37 @@ risk_profile = st.sidebar.selectbox(
 # PRICE FETCHING (CMP)
 # ==============================
 YAHOO_SYMBOL_MAP = {
-    "M&M": "MM",
     "BAJAJ-AUTO": "BAJAJ-AUTO",
-    "TATAMOTORS": "TATAMOTORS",
+    "TATAMOTORS": "TMPV",
 }
 
+@st.cache_data(ttl=300)
 def get_cmp(symbol):
-    try:
-        yahoo_symbol = YAHOO_SYMBOL_MAP.get(symbol, symbol)
-        ticker = yf.Ticker(yahoo_symbol + ".NS")
+    sym = YAHOO_MAP.get(symbol, symbol)
+    ticker = yf.Ticker(sym + ".NS")
 
-        # 1️⃣ fast_info (preferred)
+    # 1️⃣ fast_info (fastest)
+    try:
         price = ticker.fast_info.get("lastPrice")
         if price:
             return round(price, 2)
+    except:
+        pass
 
-        # 2️⃣ fallback to regular market price
-        info = ticker.info
-        price = info.get("regularMarketPrice")
+    # 2️⃣ info fallback
+    try:
+        price = ticker.info.get("regularMarketPrice")
         if price:
             return round(price, 2)
+    except:
+        pass
 
-    except Exception:
+    # 3️⃣ historical fallback (most reliable)
+    try:
+        hist = ticker.history(period="1d")
+        if not hist.empty:
+            return round(hist["Close"].iloc[-1], 2)
+    except:
         pass
 
     return None
@@ -152,8 +161,10 @@ if not portfolio_mode:
     def fmt(val, pct=False):
         if val is None:
             return "Not Available"
-        return f"{round(val*100, 2)}%" if pct else round(val, 2)
-
+        if pct:
+            return f"{round(val * 100, 2)}%"
+        return round(val, 2)
+        
     c1, c2, c3 = st.columns(3)
     c1.metric("PE Ratio", fmt(fund.get("PE")))
     c2.metric("PB Ratio", fmt(fund.get("PB")))
