@@ -392,21 +392,20 @@ if not portfolio_mode:
     st.metric("Allocation %", f"{alloc_pct}%")
     st.metric("Amount (₹)", f"₹{alloc_amt:,}")
 
-# ==============================
-# PORTFOLIO MODE
-# ==============================
+# ===============================
+# PORTFOLIO SUMMARY (CLEAN)
+# ===============================
 st.markdown("---")
 st.markdown("## 📊 Portfolio Intelligence Summary")
 
-portfolio = []
-for s in selected_stocks:
-    r = df_all[df_all["Symbol"] == s].iloc[0]
-    portfolio.append({
-        "stock": s,
-        "sector": r["Sector"],
-        "allocation_pct": round(100 / len(selected_stocks), 2)
-    })
+from logic_portfolio import (
+    build_portfolio,
+    portfolio_final_recommendation,
+    portfolio_confidence_band,
+    adjust_for_market_regime
+)
 
+portfolio = build_portfolio(df_all, selected_stocks)
 portfolio_result = analyze_portfolio(portfolio, risk_profile)
 
 st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
@@ -416,90 +415,57 @@ for w in portfolio_result["warnings"]:
 
 for i in portfolio_result["insights"]:
     st.info(i)
-# ==============================
-# PORTFOLIO FINAL RECOMMENDATION
-# ==============================
-st.markdown("## 📌 Portfolio Final Recommendation")
 
-portfolio_score = portfolio_result["risk_score"]
+# -------------------------------
+# FINAL PORTFOLIO RECOMMENDATION
+# -------------------------------
+portfolio_action, portfolio_reason = portfolio_final_recommendation(
+    portfolio_result["risk_score"]
+)
 
-if portfolio_score >= 70:
-    portfolio_rec = "BUY"
-    st.success(f"BUY – Strong portfolio quality (Score: {portfolio_score})")
-elif portfolio_score >= 50:
-    portfolio_rec = "HOLD"
-    st.warning(f"HOLD – Balanced but watch risks (Score: {portfolio_score})")
+st.markdown("## 🧭 Portfolio Final Recommendation")
+if portfolio_action == "BUY":
+    st.success(f"BUY – {portfolio_reason}")
+elif portfolio_action == "HOLD":
+    st.warning(f"HOLD – {portfolio_reason}")
 else:
-    portfolio_rec = "REDUCE"
-    st.error(f"REDUCE – Elevated portfolio risk (Score: {portfolio_score})")
+    st.error(f"REDUCE – {portfolio_reason}")
 
-# ==============================
-# PORTFOLIO CONFIDENCE BAND
-# ==============================
-st.markdown("### 🔐 Portfolio Confidence Level")
+# -------------------------------
+# CONFIDENCE BAND
+# -------------------------------
+portfolio_confidence = portfolio_confidence_band(
+    portfolio_result["risk_score"],
+    len(portfolio_result["warnings"])
+)
 
-portfolio_warnings_count = len(portfolio_result.get("warnings", []))
+st.markdown("### 🎯 Portfolio Confidence")
+st.info(portfolio_confidence)
 
-if portfolio_score >= 70 and portfolio_warnings_count == 0:
-    portfolio_confidence = "High Confidence"
-elif portfolio_score >= 50 and portfolio_warnings_count <= 2:
-    portfolio_confidence = "Medium Confidence"
-else:
-    portfolio_confidence = "Low Confidence"
+# -------------------------------
+# MARKET REGIME ADJUSTMENT
+# -------------------------------
+adjusted_action = adjust_for_market_regime(
+    portfolio_action,
+    market
+)
 
-if portfolio_confidence == "High Confidence":
-    st.success(f"🟢 {portfolio_confidence}")
-elif portfolio_confidence == "Medium Confidence":
-    st.warning(f"🟡 {portfolio_confidence}")
-else:
-    st.error(f"🔴 {portfolio_confidence}")
-
-# ==============================
-# REGIME-ADJUSTED PORTFOLIO DECISION
-# ==============================
 st.markdown("### 🌍 Market Regime Adjustment")
-
-regime = market.get("regime", "Neutral")
-regime_note = market.get("note", "")
-
-adjusted_portfolio_action = portfolio_action  # default
-
-if regime in ["Risk-Off", "Bearish", "High Volatility"]:
-    if portfolio_action == "AGGRESSIVE BUY":
-        adjusted_portfolio_action = "SELECTIVE BUY"
-    elif portfolio_action == "BUY":
-        adjusted_portfolio_action = "HOLD / ACCUMULATE SLOWLY"
-
-elif regime in ["Risk-On", "Bullish", "Low Volatility"]:
-    if portfolio_action == "HOLD":
-        adjusted_portfolio_action = "BUY ON DIPS"
-
-# Display result
-if adjusted_portfolio_action != portfolio_action:
+if adjusted_action != portfolio_action:
     st.warning(
-        f"⚠️ Market regime adjustment applied.\n\n"
-        f"Original: **{portfolio_action}** → Adjusted: **{adjusted_portfolio_action}**"
+        f"⚠️ Market regime adjusted action\n\n"
+        f"Original: **{portfolio_action}** → Adjusted: **{adjusted_action}**"
     )
 else:
-    st.success(f"✅ Portfolio action remains **{portfolio_action}** under current regime.")
+    st.success(f"✅ Portfolio action unchanged: **{portfolio_action}**")
 
-st.info(f"**Market Regime:** {regime} — {regime_note}")
+st.info(f"**Market Regime:** {market.get('regime')} – {market.get('note')}")
 
-# ==============================
+# -------------------------------
 # FINAL PORTFOLIO COMPOSITION
-# ==============================
-
-st.markdown("## 📊 Final Portfolio Composition")
-
-st.caption(
-    f"Action: **{adjusted_portfolio_action}** | "
-    f"Market Regime: **{regime}**"
-)
-
-st.dataframe(
-    pd.DataFrame(portfolio),
-    use_container_width=True
-)
+# -------------------------------
+st.markdown("## 📋 Final Portfolio Composition")
+st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
 # ==============================
 # FINAL REMARKS
 # ==============================
