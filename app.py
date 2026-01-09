@@ -91,18 +91,32 @@ risk_profile = st.sidebar.selectbox(
 # ==============================
 # PRICE FETCHING (CMP)
 # ==============================
-YAHOO_MAP = {"M&M": "MM"}
+YAHOO_SYMBOL_MAP = {
+    "M&M": "MM",
+    "BAJAJ-AUTO": "BAJAJ-AUTO",
+    "TATAMOTORS": "TATAMOTORS",
+}
 
 def get_cmp(symbol):
     try:
-        sym = YAHOO_MAP.get(symbol, symbol)
-        price = yf.Ticker(sym + ".NS").fast_info.get("lastPrice")
-        return round(price, 2) if price else None
-    except:
-        return None
+        yahoo_symbol = YAHOO_SYMBOL_MAP.get(symbol, symbol)
+        ticker = yf.Ticker(yahoo_symbol + ".NS")
 
-df["CMP (₹)"] = df["Symbol"].apply(get_cmp)
+        # 1️⃣ fast_info (preferred)
+        price = ticker.fast_info.get("lastPrice")
+        if price:
+            return round(price, 2)
 
+        # 2️⃣ fallback to regular market price
+        info = ticker.info
+        price = info.get("regularMarketPrice")
+        if price:
+            return round(price, 2)
+
+    except Exception:
+        pass
+
+    return None
 # ==============================
 # MAIN TABLE
 # ==============================
