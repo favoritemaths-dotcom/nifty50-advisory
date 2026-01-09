@@ -11,7 +11,8 @@ from pypdf import PdfReader
 from logic_fundamentals import (
     fetch_fundamentals,
     evaluate_metric,
-    detect_red_flags
+    detect_red_flags,
+    apply_fundamental_fallbacks
 )
 from logic_valuation import estimate_fair_value
 from logic_news import analyze_news
@@ -154,6 +155,7 @@ if not portfolio_mode:
     # FUNDAMENTALS FETCH
     # ---------------------------------------------------
     fund = fetch_fundamentals(stock)
+    fund = apply_fundamental_fallbacks(fund)
 
     # ---------------------------------------------------
     # FUNDAMENTALS DISPLAY
