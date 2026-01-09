@@ -143,17 +143,21 @@ if not portfolio_mode:
     # FUNDAMENTALS DISPLAY
     # ---------------------------------------------------
     st.markdown("### 📊 Valuation & Profitability")
+    def fmt(val, pct=False):
+    if val is None:
+        return "Not Available"
+    return f"{round(val*100, 2)}%" if pct else round(val, 2)
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("PE Ratio", round(fund.get("PE"), 2) if fund.get("PE") else "—")
-    c2.metric("PB Ratio", round(fund.get("PB"), 2) if fund.get("PB") else "—")
-    c3.metric("EV / EBITDA", round(fund.get("EV_EBITDA"), 2) if fund.get("EV_EBITDA") else "—")
+    c1.metric("PE Ratio", fmt(fund.get("PE")))
+    c2.metric("PB Ratio", fmt(fund.get("PB")))
+    c3.metric("EV / EBITDA", fmt(fund.get("EV_EBITDA")))
 
     c4, c5, c6 = st.columns(3)
-    c4.metric("ROE", f"{round(fund.get('ROE')*100,2)}%" if fund.get("ROE") else "—")
-    c5.metric("ROCE", f"{round(fund.get('ROCE')*100,2)}%" if fund.get("ROCE") else "—")
-    c6.metric("Net Margin", f"{round(fund.get('NetMargin')*100,2)}%" if fund.get("NetMargin") else "—")
-
+    c4.metric("ROE", fmt(fund.get("ROE"), pct=True))
+    c5.metric("ROCE", fmt(fund.get("ROCE"), pct=True))
+    c6.metric("Net Margin", fmt(fund.get("NetMargin"), pct=True))
+    
     # ---------------------------------------------------
     # METRIC QUALITY ASSESSMENT
     # ---------------------------------------------------
