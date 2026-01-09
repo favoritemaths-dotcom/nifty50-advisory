@@ -144,9 +144,9 @@ if not portfolio_mode:
     # ---------------------------------------------------
     st.markdown("### 📊 Valuation & Profitability")
     def fmt(val, pct=False):
-    if val is None:
-        return "Not Available"
-    return f"{round(val*100, 2)}%" if pct else round(val, 2)
+        if val is None:
+            return "Not Available"
+        return f"{round(val*100, 2)}%" if pct else round(val, 2)
 
     c1, c2, c3 = st.columns(3)
     c1.metric("PE Ratio", fmt(fund.get("PE")))
