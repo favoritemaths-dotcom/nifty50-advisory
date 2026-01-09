@@ -416,6 +416,22 @@ for w in portfolio_result["warnings"]:
 
 for i in portfolio_result["insights"]:
     st.info(i)
+# ==============================
+# PORTFOLIO FINAL RECOMMENDATION
+# ==============================
+st.markdown("## 📌 Portfolio Final Recommendation")
+
+portfolio_score = portfolio_result["risk_score"]
+
+if portfolio_score >= 70:
+    portfolio_rec = "BUY"
+    st.success(f"BUY – Strong portfolio quality (Score: {portfolio_score})")
+elif portfolio_score >= 50:
+    portfolio_rec = "HOLD"
+    st.warning(f"HOLD – Balanced but watch risks (Score: {portfolio_score})")
+else:
+    portfolio_rec = "REDUCE"
+    st.error(f"REDUCE – Elevated portfolio risk (Score: {portfolio_score})")
 
 st.markdown("### 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
