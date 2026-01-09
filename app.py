@@ -605,24 +605,45 @@ else:
 st.info(f"**Market Regime:** {market.get('regime')} – {market.get('note')}")
 
 # ----------------------------------------
-# INVESTOR BEHAVIOR & BIAS ANALYSIS
+# INVESTOR BEHAVIOR INTELLIGENCE
 # ----------------------------------------
-st.markdown("## 🧠 Investor Behavior Analysis")
+st.markdown("## 🧠 Investor Behavior Intelligence")
 
-from logic_behavioral_bias import detect_behavioral_bias
+from logic_behavioral_bias import (
+    behavioral_bias_analysis,
+    behavioral_risk_band,
+    behavioral_nudges
+)
 
-biases = detect_behavioral_bias(
+behavior = behavioral_bias_analysis(
     recommendation=portfolio_action if portfolio_mode else rec,
     risk_profile=risk_profile,
     time_horizon=time_horizon,
     market=market
 )
 
-for b in biases:
+behavior_score = behavior["behavior_score"]
+behavior_band = behavioral_risk_band(behavior_score)
+
+st.metric("Behavioral Risk Score", f"{behavior_score} / 100")
+
+if behavior_band == "High Behavioral Risk":
+    st.error(f"🚨 {behavior_band}")
+elif behavior_band == "Moderate Behavioral Risk":
+    st.warning(f"⚠️ {behavior_band}")
+else:
+    st.success(f"✅ {behavior_band}")
+
+st.markdown("### 🔍 Detected Behavioral Signals")
+for b in behavior["biases"]:
     if "⚠️" in b or "🐢" in b:
         st.warning(b)
     else:
         st.success(b)
+
+st.markdown("### 🎯 Behavior Improvement Suggestions")
+for n in behavioral_nudges(behavior["biases"]):
+    st.info(f"• {n}")
         
 # -------------------------------
 # FINAL PORTFOLIO COMPOSITION
