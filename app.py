@@ -520,6 +520,41 @@ st.info(f"**Market Regime:** {market.get('regime')} – {market.get('note')}")
 # -------------------------------
 st.markdown("## 📋 Final Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
+# =====================================
+# PORTFOLIO STRESS TEST
+# =====================================
+st.markdown("## 🧪 Portfolio Stress Test")
+
+from logic_stress_test import stress_test_portfolio
+
+scenario = st.selectbox(
+    "Select Stress Scenario",
+    [
+        "Market Crash (-20%)",
+        "Interest Rate Hike",
+        "Commodity Spike",
+        "Global Risk-Off",
+        "Bull Run"
+    ]
+)
+
+stress = stress_test_portfolio(portfolio_result, scenario)
+
+st.metric(
+    "Stressed Portfolio Risk Score",
+    stress["stressed_score"]
+)
+
+if stress["action_bias"] == "BUY":
+    st.success(f"Suggested Action Bias: {stress['action_bias']}")
+elif stress["action_bias"] == "HOLD":
+    st.warning(f"Suggested Action Bias: {stress['action_bias']}")
+else:
+    st.error(f"Suggested Action Bias: {stress['action_bias']}")
+
+for w in stress["warnings"]:
+    st.warning(w)
+    
 # ==============================
 # FINAL REMARKS
 # ==============================
