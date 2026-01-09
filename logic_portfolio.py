@@ -78,7 +78,6 @@ def portfolio_final_recommendation(portfolio_score):
     else:
         return "REDUCE", "Elevated portfolio risk"
 
-
 def portfolio_confidence_band(portfolio_score, warning_count):
     """
     Confidence assessment based on score + warnings
@@ -89,7 +88,6 @@ def portfolio_confidence_band(portfolio_score, warning_count):
         return "Medium Confidence"
     else:
         return "Low Confidence"
-
 
 def adjust_for_market_regime(portfolio_action, market):
     regime = market.get("regime", "Neutral")
@@ -102,3 +100,28 @@ def adjust_for_market_regime(portfolio_action, market):
             return "BUY ON DIPS"
 
     return portfolio_action
+
+def portfolio_risk_triggers(portfolio_result, market):
+    triggers = []
+
+    # Portfolio structural risks
+    if portfolio_result["risk_score"] >= 5:
+        triggers.append("Overall portfolio risk score is elevated.")
+
+    if portfolio_result.get("warnings"):
+        for w in portfolio_result["warnings"]:
+            triggers.append(w)
+
+    # Market regime overlay
+    regime = market.get("regime", "Neutral")
+
+    if regime in ["Risk-Off", "Bearish"]:
+        triggers.append("Market regime is risk-off; downside protection becomes critical.")
+
+    if regime == "High Volatility":
+        triggers.append("High volatility environment may amplify portfolio drawdowns.")
+
+    if not triggers:
+        triggers.append("No major portfolio-level downside triggers identified.")
+
+    return triggers
