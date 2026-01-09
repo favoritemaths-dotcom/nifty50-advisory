@@ -117,6 +117,12 @@ def get_cmp(symbol):
         pass
 
     return None
+
+# ==============================
+# ADD CMP COLUMN (SAFE)
+# ==============================
+if "CMP (₹)" not in df.columns:
+    df["CMP (₹)"] = df["Symbol"].apply(get_cmp)
 # ==============================
 # MAIN TABLE
 # ==============================
