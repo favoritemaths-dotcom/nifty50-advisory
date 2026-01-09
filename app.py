@@ -644,6 +644,41 @@ for b in behavior["biases"]:
 st.markdown("### 🎯 Behavior Improvement Suggestions")
 for n in behavioral_nudges(behavior["biases"]):
     st.info(f"• {n}")
+
+# ----------------------------------------
+# DECISION QUALITY TRACKER
+# ----------------------------------------
+st.markdown("## 🧩 Decision Quality Tracker")
+
+from logic_decision_quality import decision_quality_score
+
+dq = decision_quality_score(
+    recommendation=portfolio_action if portfolio_mode else rec,
+    score=portfolio_result["risk_score"] if portfolio_mode else score,
+    confidence=portfolio_confidence if portfolio_mode else confidence,
+    risk_profile=risk_profile,
+    time_horizon=time_horizon,
+    market=market,
+    behavioral_score=behavior.get("behavior_score") if "behavior" in locals() else None
+)
+
+st.metric(
+    "Decision Quality Score",
+    f"{dq['decision_quality_score']} / 100"
+)
+
+band = dq["decision_quality_band"]
+
+if band == "High Quality Decision":
+    st.success(f"✅ {band}")
+elif band == "Moderate Quality Decision":
+    st.warning(f"⚠️ {band}")
+else:
+    st.error(f"🚨 {band}")
+
+st.markdown("### 🧠 Decision Review Notes")
+for n in dq["notes"]:
+    st.write(f"• {n}")
         
 # -------------------------------
 # FINAL PORTFOLIO COMPOSITION
