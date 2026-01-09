@@ -458,6 +458,37 @@ else:
     st.error(f"🔴 {portfolio_confidence}")
 
 # ==============================
+# REGIME-ADJUSTED PORTFOLIO DECISION
+# ==============================
+st.markdown("### 🌍 Market Regime Adjustment")
+
+regime = market.get("regime", "Neutral")
+regime_note = market.get("note", "")
+
+adjusted_portfolio_action = portfolio_action  # default
+
+if regime in ["Risk-Off", "Bearish", "High Volatility"]:
+    if portfolio_action == "AGGRESSIVE BUY":
+        adjusted_portfolio_action = "SELECTIVE BUY"
+    elif portfolio_action == "BUY":
+        adjusted_portfolio_action = "HOLD / ACCUMULATE SLOWLY"
+
+elif regime in ["Risk-On", "Bullish", "Low Volatility"]:
+    if portfolio_action == "HOLD":
+        adjusted_portfolio_action = "BUY ON DIPS"
+
+# Display result
+if adjusted_portfolio_action != portfolio_action:
+    st.warning(
+        f"⚠️ Market regime adjustment applied.\n\n"
+        f"Original: **{portfolio_action}** → Adjusted: **{adjusted_portfolio_action}**"
+    )
+else:
+    st.success(f"✅ Portfolio action remains **{portfolio_action}** under current regime.")
+
+st.info(f"**Market Regime:** {regime} — {regime_note}")
+
+# ==============================
 # FINAL REMARKS
 # ==============================
 st.markdown("### 🔍 Confidence Level")
