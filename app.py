@@ -604,6 +604,26 @@ else:
 
 st.info(f"**Market Regime:** {market.get('regime')} – {market.get('note')}")
 
+# ----------------------------------------
+# INVESTOR BEHAVIOR & BIAS ANALYSIS
+# ----------------------------------------
+st.markdown("## 🧠 Investor Behavior Analysis")
+
+from logic_behavioral_bias import detect_behavioral_bias
+
+biases = detect_behavioral_bias(
+    recommendation=portfolio_action if portfolio_mode else rec,
+    risk_profile=risk_profile,
+    time_horizon=time_horizon,
+    market=market
+)
+
+for b in biases:
+    if "⚠️" in b or "🐢" in b:
+        st.warning(b)
+    else:
+        st.success(b)
+        
 # -------------------------------
 # FINAL PORTFOLIO COMPOSITION
 # -------------------------------
