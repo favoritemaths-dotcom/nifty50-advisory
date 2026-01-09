@@ -75,11 +75,55 @@ def evaluate_metric(name, value):
     return "—"
 
 def detect_red_flags(fund):
-    flags = []
-    if fund.get("DebtEquity", 0) > 2.5:
-        flags.append("Very high leverage")
-    if fund.get("InterestCover", 0) < 1.5:
-        flags.append("Low interest coverage")
-    if fund.get("EPSGrowth", 0) < 0:
-        flags.append("Negative earnings growth")
-    return flags
+    """
+    Detects fundamental red flags safely.
+    Handles None / missing values gracefully.
+    """
+    red_flags = []
+
+    # --- ROE ---
+    roe = fund.get("ROE")
+    if roe is not None and roe < 0.10:
+        red_flags.append("Low Return on Equity")
+
+    # --- ROCE ---
+    roce = fund.get("ROCE")
+    if roce is not None and roce < 0.10:
+        red_flags.append("Low Return on Capital Employed")
+
+    # --- Debt to Equity ---
+    de = fund.get("DebtEquity")
+    if de is not None and de > 2:
+        red_flags.append("High debt-to-equity ratio")
+
+    # --- Interest Coverage ---
+    interest_cover = fund.get("InterestCover")
+    if interest_cover is not None and interest_cover < 1.5:
+        red_flags.append("Weak interest coverage")
+
+    # --- Net Profit Margin ---
+    net_margin = fund.get("NetMargin")
+    if net_margin is not None and net_margin < 0.05:
+        red_flags.append("Low net profit margin")
+
+    # --- Revenue Growth ---
+    rev_growth = fund.get("RevenueGrowth")
+    if rev_growth is not None and rev_growth < 0:
+        red_flags.append("Declining revenue growth")
+
+    # --- EPS Growth ---
+    eps_growth = fund.get("EPSGrowth")
+    if eps_growth is not None and eps_growth < 0:
+        red_flags.append("Negative earnings growth")
+
+    # --- Free Cash Flow ---
+    fcf = fund.get("FreeCashFlow")
+    if fcf is not None and fcf < 0:
+        red_flags.append("Negative free cash flow")
+
+    # --- Promoter Holding ---
+    promoter_holding = fund.get("PromoterHolding")
+    if promoter_holding is not None and promoter_holding < 0.40:
+        red_flags.append("Low promoter holding")
+
+    return red_flags
