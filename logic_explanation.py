@@ -1,9 +1,13 @@
-def generate_explanation(stock, score, rec, reasons, risk, horizon):
-    text=[f"### AI View – {stock}",
-          f"Score: {score}/100",
-          f"Recommendation: {rec}",
-          f"Risk Profile: {risk}, Horizon: {horizon}",
-          "Key Reasons:"]
-    for r in reasons:
-        text.append(f"- {r}")
-    return "\n".join(text)
+def generate_explanation(stock, score, rec, reasons, risk_profile, time_horizon):
+    text = []
+    text.append(f"### 🤖 AI Advisory View – {stock}")
+    text.append(f"**Score:** {score}/100")
+    text.append(f"**Recommendation:** {rec}")
+    text.append(f"**Risk Profile:** {risk_profile}")
+    text.append(f"**Investment Horizon:** {time_horizon}")
+    if reasons:
+        text.append("#### Key Factors:")
+        for r in reasons:
+            text.append(f"• {r}")
+    text.append("_This is a rule-based advisory insight, not financial advice._")
+    return "\n\n".join(text)
