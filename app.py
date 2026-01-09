@@ -528,13 +528,26 @@ st.info(confidence if not portfolio_mode else "Portfolio mode confidence")
 
 st.markdown("### 🔁 What Could Change This Recommendation?")
 
-from logic_risk_triggers import risk_triggers
+st.markdown("### ⚠️ What Could Change This Recommendation")
 
-triggers = risk_triggers(
-    fund=fund if not portfolio_mode else {},
-    score=score if not portfolio_mode else None,
-    market=market
-)
+if portfolio_mode:
+    triggers = portfolio_risk_triggers(
+        portfolio_result=portfolio_result,
+        market=market
+    )
+else:
+    from logic_risk_triggers import risk_triggers
+    triggers = risk_triggers(
+        fund=fund,
+        score=score,
+        market=market
+    )
+
+if not triggers:
+    st.success("No major downside risk triggers identified.")
+else:
+    for t in triggers:
+        st.write(f"• {t}")
 
 if not triggers:
     st.success("No major downside triggers identified at this time.")
