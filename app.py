@@ -500,7 +500,32 @@ deployment = capital_deployment_plan(
 )
 
 st.dataframe(deployment, use_container_width=True)
+# ==================================
+# PORTFOLIO PERFORMANCE SIMULATION
+# ==================================
 
+from logic_portfolio_performance import simulate_portfolio_performance
+
+st.markdown("### 📈 Portfolio Performance Simulation")
+
+performance = simulate_portfolio_performance(portfolio)
+
+if performance:
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric("Expected CAGR", f"{performance['cagr_pct']}%")
+    c2.metric("Max Drawdown", f"-{performance['max_drawdown_pct']}%")
+    c3.metric("Risk-Adjusted Score", performance["risk_adjusted_score"])
+
+    if performance["risk_adjusted_score"] >= 1.2:
+        st.success("Strong risk-adjusted portfolio performance expected")
+    elif performance["risk_adjusted_score"] >= 0.8:
+        st.warning("Moderate returns with manageable risk")
+    else:
+        st.error("High drawdown risk relative to expected return")
+else:
+    st.info("Portfolio performance simulation unavailable")
+    
 st.caption("Deployment plan is indicative and based on risk, conviction, and market conditions.")
 
 # -------------------------------
