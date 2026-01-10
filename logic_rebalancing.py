@@ -1,29 +1,66 @@
-def portfolio_rebalancing_signal(portfolio_result, market, confidence):
+# ======================================================
+# PORTFOLIO REBALANCING ENGINE
+# ======================================================
+
+def portfolio_rebalancing_signal(
+    portfolio_result,
+    market,
+    confidence
+):
     """
     Determines whether portfolio needs rebalancing.
+
+    Inputs:
+        portfolio_result: dict from analyze_portfolio()
+        market: dict from detect_market_regime()
+        confidence: str (High / Medium / Low Confidence)
+
+    Returns:
+        action: str
+        reasons: list[str]
     """
 
-    signals = []
+    action = "NO ACTION"
+    reasons = []
 
     risk_score = portfolio_result.get("risk_score", 0)
     warnings = portfolio_result.get("warnings", [])
+    regime = market.get("regime", "Neutral")
 
-    if risk_score < 45:
-        signals.append("High portfolio risk detected")
+    # ----------------------------------
+    # High portfolio risk
+    # ----------------------------------
+    if risk_score >= 6:
+        action = "REBALANCE NOW"
+        reasons.append("Portfolio risk score is elevated.")
 
+    # ----------------------------------
+    # Structural warning overload
+    # ----------------------------------
     if len(warnings) >= 2:
-        signals.append("Multiple portfolio warnings present")
+        action = "REBALANCE NOW"
+        reasons.append("Multiple portfolio-level warnings detected.")
 
-    if market.get("regime") in ["Risk-Off", "Bearish"]:
-        signals.append("Market regime turning defensive")
+    # ----------------------------------
+    # Market regime deterioration
+    # ----------------------------------
+    if regime in ["Bear Market", "Risk-Off", "High Volatility"]:
+        if action != "REBALANCE NOW":
+            action = "MONITOR"
+        reasons.append("Market regime has turned defensive.")
 
+    # ----------------------------------
+    # Confidence downgrade
+    # ----------------------------------
     if "Low" in confidence:
-        signals.append("Low confidence band")
+        if action == "NO ACTION":
+            action = "MONITOR"
+        reasons.append("Low confidence band suggests caution.")
 
-    if signals:
-        return "REBALANCE NOW", signals
+    # ----------------------------------
+    # Default healthy case
+    # ----------------------------------
+    if not reasons:
+        reasons.append("Portfolio remains aligned with risk and market conditions.")
 
-    if market.get("regime") == "Neutral":
-        return "MONITOR", ["No urgent risks, but monitor periodically"]
-
-    return "NO ACTION", ["Portfolio aligned with current conditions"]
+    return action, reasons
