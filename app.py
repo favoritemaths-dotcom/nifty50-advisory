@@ -311,29 +311,28 @@ else:
     else:
         st.error(final_rec)
 
-# ==============================
-# ASK THE AI — WHY? (Single Stock)
-# ==============================
-st.markdown("## 🤖 Ask the AI (Why?)")
+# ASK THE AI – WHY? (Single Stock)
+if not portfolio_mode:
+    st.markdown("## 🤖 Ask the AI (Why?)")
 
-user_question = st.text_input(
-    "Ask a question about this recommendation",
-    placeholder="e.g. Why is this a BUY? What are the risks?"
-)
-
-if user_question:
-    ai_response = ai_ask_why(
-        question=user_question,
-        recommendation=rec,
-        score=score,
-        confidence=confidence,
-        reasons=reasons,
-        risk_profile=risk_profile,
-        market=market,
-        portfolio_mode=False
+    user_question = st.text_input(
+        "Ask a question about this recommendation",
+        placeholder="e.g. Why is this a BUY?"
     )
 
-    st.info(ai_response)
+    if user_question:
+        ai_response = ai_ask_why(
+            question=user_question,
+            recommendation=rec,
+            score=score,
+            confidence=confidence,
+            reasons=reasons,
+            risk_profile=risk_profile,
+            market=market,
+            portfolio_mode=False
+        )
+
+        st.info(ai_response)
 
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
