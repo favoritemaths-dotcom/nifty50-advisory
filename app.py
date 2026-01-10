@@ -205,25 +205,27 @@ if not portfolio_mode:
     fc2.metric("Upside", f"{upside_pct}%" if upside_pct is not None else "—")
     fc3.metric("Zone", entry_zone if entry_zone else "—")
 
-    # ---------------- NEWS ----------------
+# ---------------------------------------------------
+# NEWS (Single Stock Only)
+# ---------------------------------------------------
+if not portfolio_mode:
     st.markdown("### 📰 Recent News")
-
-    @st.cache_data(ttl=1800)
-    def fetch_news(company):
-        q = urllib.parse.quote(f"{company} stock India")
-        url = f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en"
-        return feedparser.parse(url).entries[:5]
 
     news = fetch_news(row["Company"])
     news_summary = analyze_news(news)
 
-    if news:
+    if not news:
+        st.write("No recent news found.")
+    else:
         n1, n2, n3 = st.columns(3)
         n1.metric("Positive", news_summary["positive"])
         n2.metric("Neutral", news_summary["neutral"])
         n3.metric("Negative", news_summary["negative"])
-        st.info(f"Overall Bias: **{news_summary['overall']}**")
+        st.info(f"**Overall News Bias:** {news_summary['overall']}")
 
+        with st.expander("View Headlines"):
+            for n in news:
+                st.markdown(f"- [{n.title}]({n.link})")
 # -------------------------------
 # SHOW NEWS HEADLINES (EXPANDER)
 # -------------------------------
