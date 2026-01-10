@@ -224,6 +224,16 @@ if not portfolio_mode:
         n3.metric("Negative", news_summary["negative"])
         st.info(f"Overall Bias: **{news_summary['overall']}**")
 
+# -------------------------------
+# SHOW NEWS HEADLINES (EXPANDER)
+# -------------------------------
+if news:
+    with st.expander("🔎 View News Headlines"):
+        for n in news:
+            st.markdown(f"- [{n.title}]({n.link})")
+else:
+    st.info("No recent news articles found.")
+
     # ---------------- REPORTS ----------------
     st.markdown("### 📑 Company Reports")
 
