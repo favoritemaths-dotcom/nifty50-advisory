@@ -485,6 +485,35 @@ elif portfolio_action == "HOLD":
 else:
     st.error(f"REDUCE – {portfolio_reason}")
 
+# ======================================
+# ENTRY TIMING & MARGIN OF SAFETY
+# ======================================
+
+from logic_entry_timing import entry_timing_engine
+
+st.markdown("## ⏳ Entry Timing & Margin of Safety")
+
+entry = entry_timing_engine(
+    cmp_price=cmp,
+    fair_value=fair_value,
+    recommendation=rec,
+    market=market,
+    confidence=confidence,
+    risk_profile=risk_profile
+)
+
+if entry["mos"] is not None:
+    st.metric("Margin of Safety (%)", f"{entry['mos']}%")
+
+if entry["action"].startswith("BUY"):
+    st.success(f"🟢 {entry['action']}")
+elif entry["action"].startswith("ACCUMULATE"):
+    st.warning(f"🟡 {entry['action']}")
+else:
+    st.error(f"🔴 {entry['action']}")
+
+st.caption(entry["reason"])
+
 # =====================================
 # CAPITAL DEPLOYMENT PLAN
 # =====================================
