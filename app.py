@@ -270,12 +270,23 @@ if not portfolio_mode:
 
 st.markdown("## 📌 Final Recommendation")
 
-if "BUY" in final_rec:
-    st.success(final_rec)
-elif "HOLD" in final_rec:
-    st.warning(final_rec)
+if portfolio_mode:
+    # PORTFOLIO MODE
+    if portfolio_action == "BUY":
+        st.success(f"BUY – {portfolio_reason}")
+    elif portfolio_action == "HOLD":
+        st.warning(f"HOLD – {portfolio_reason}")
+    else:
+        st.error(f"REDUCE – {portfolio_reason}")
+
 else:
-    st.error(final_rec)
+    # SINGLE STOCK MODE
+    if "BUY" in final_rec:
+        st.success(final_rec)
+    elif "HOLD" in final_rec:
+        st.warning(final_rec)
+    else:
+        st.error(final_rec)
 
     st.markdown("## 🧠 AI Explanation")
     st.markdown(generate_explanation(
