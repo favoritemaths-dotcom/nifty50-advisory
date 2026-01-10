@@ -1,20 +1,63 @@
+# ======================================================
+# NEWS SENTIMENT ANALYSIS (RULE-BASED, SAFE)
+# ======================================================
+
 def analyze_news(entries):
-    summary = {"positive": 0, "neutral": 0, "negative": 0}
+    """
+    Analyzes recent news headlines and classifies sentiment.
+    Input:
+        entries → list of RSS feed entries (Google News)
+    Output:
+        {
+            positive: int,
+            neutral: int,
+            negative: int,
+            overall: "Positive" | "Neutral" | "Negative"
+        }
+    """
+
+    summary = {
+        "positive": 0,
+        "neutral": 0,
+        "negative": 0,
+        "overall": "Neutral"
+    }
+
+    if not entries:
+        return summary
+
+    positive_keywords = [
+        "growth", "profit", "beat", "record", "expansion",
+        "strong", "upgrade", "order win", "recovery", "margin improvement"
+    ]
+
+    negative_keywords = [
+        "loss", "decline", "fall", "warning", "downgrade",
+        "risk", "fraud", "probe", "litigation", "default",
+        "margin pressure", "slowdown"
+    ]
+
     for e in entries:
-        title = e.title.lower()
-        if any(x in title for x in ["growth","profit","beat"]):
+        try:
+            title = (e.title or "").lower()
+        except Exception:
+            title = ""
+
+        if any(word in title for word in positive_keywords):
             summary["positive"] += 1
-        elif any(x in title for x in ["loss","decline","warn"]):
+        elif any(word in title for word in negative_keywords):
             summary["negative"] += 1
         else:
             summary["neutral"] += 1
 
+    # --------------------------------------------------
+    # OVERALL BIAS LOGIC
+    # --------------------------------------------------
     if summary["negative"] > summary["positive"]:
-        overall = "Negative"
+        summary["overall"] = "Negative"
     elif summary["positive"] > summary["negative"]:
-        overall = "Positive"
+        summary["overall"] = "Positive"
     else:
-        overall = "Neutral"
+        summary["overall"] = "Neutral"
 
-    summary["overall"] = overall
     return summary
