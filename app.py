@@ -277,29 +277,6 @@ st.markdown("## 📊 Portfolio Intelligence")
 
 portfolio = build_portfolio(df_all, selected_stocks)
 portfolio_result = analyze_portfolio(portfolio, risk_profile)
-# ==============================
-# FINAL RECOMMENDATION DISPLAY
-# ==============================
-
-st.markdown("## 📌 Final Recommendation")
-
-if portfolio_mode:
-    # PORTFOLIO MODE
-    if portfolio_action == "BUY":
-        st.success(f"BUY – {portfolio_reason}")
-    elif portfolio_action == "HOLD":
-        st.warning(f"HOLD – {portfolio_reason}")
-    else:
-        st.error(f"REDUCE – {portfolio_reason}")
-
-else:
-    # SINGLE STOCK MODE
-    if "BUY" in final_rec:
-        st.success(final_rec)
-    elif "HOLD" in final_rec:
-        st.warning(final_rec)
-    else:
-        st.error(final_rec)
 
 st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
 
@@ -312,7 +289,27 @@ for i in portfolio_result["insights"]:
 portfolio_action, reason = portfolio_final_recommendation(
     portfolio_result["risk_score"]
 )
+# ==============================
+# FINAL RECOMMENDATION DISPLAY
+# ==============================
 
+st.markdown("## 🧭 Final Recommendation")
+
+if portfolio_mode:
+    if portfolio_action == "BUY":
+        st.success(f"BUY – {reason}")
+    elif portfolio_action == "HOLD":
+        st.warning(f"HOLD – {reason}")
+    else:
+        st.error(f"REDUCE – {reason}")
+else:
+    if "BUY" in final_rec:
+        st.success(final_rec)
+    elif "HOLD" in final_rec:
+        st.warning(final_rec)
+    else:
+        st.error(final_rec)
+        
 st.markdown("## 🧭 Portfolio Final Recommendation")
 st.success(f"{portfolio_action} – {reason}")
 
