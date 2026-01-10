@@ -1,15 +1,30 @@
+# ======================================================
+# PORTFOLIO STRESS TEST ENGINE
+# ======================================================
+
 def stress_test_portfolio(portfolio_result, scenario):
     """
     Simulates macro stress scenarios on portfolio risk.
-    Returns adjusted risk score, action bias, and warnings.
+
+    Inputs:
+    - portfolio_result: output of analyze_portfolio()
+    - scenario: selected stress scenario string
+
+    Returns:
+    - stressed_score (0–100)
+    - action_bias (BUY / HOLD / REDUCE / SELECTIVE BUY)
+    - warnings (list of strings)
     """
 
-    base_score = portfolio_result["risk_score"]
+    base_score = portfolio_result.get("risk_score", 0)
     warnings = []
 
     score_impact = 0
     action_bias = "NEUTRAL"
 
+    # -------------------------------
+    # SCENARIO IMPACTS
+    # -------------------------------
     if scenario == "Market Crash (-20%)":
         score_impact = -25
         warnings.append("Sharp market drawdown impacts all equities.")
@@ -22,19 +37,26 @@ def stress_test_portfolio(portfolio_result, scenario):
 
     elif scenario == "Commodity Spike":
         score_impact = -10
-        warnings.append("Input cost pressure on margins.")
+        warnings.append("Input cost pressure may compress margins.")
         action_bias = "SELECTIVE BUY"
 
     elif scenario == "Global Risk-Off":
         score_impact = -20
-        warnings.append("Valuation multiples compress globally.")
+        warnings.append("Global risk-off may compress valuation multiples.")
         action_bias = "REDUCE"
 
     elif scenario == "Bull Run":
         score_impact = +10
-        warnings.append("Momentum-driven upside possible.")
+        warnings.append("Momentum-driven upside possible across equities.")
         action_bias = "BUY"
 
+    else:
+        warnings.append("Unknown scenario – stress impact assumed neutral.")
+        action_bias = "HOLD"
+
+    # -------------------------------
+    # FINAL STRESSED SCORE
+    # -------------------------------
     stressed_score = max(0, min(100, base_score + score_impact))
 
     return {
