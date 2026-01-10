@@ -22,6 +22,7 @@ from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
 from logic_confidence import confidence_band, conviction_label
 from logic_market_regime import detect_market_regime
+from logic_ai_explain import ai_ask_why
 
 from logic_portfolio import (
     build_portfolio,
@@ -309,9 +310,54 @@ else:
         st.warning(final_rec)
     else:
         st.error(final_rec)
-        
-st.markdown("## 🧭 Portfolio Final Recommendation")
-st.success(f"{portfolio_action} – {reason}")
+
+# ==============================
+# ASK THE AI — WHY? (Single Stock)
+# ==============================
+st.markdown("## 🤖 Ask the AI (Why?)")
+
+user_question = st.text_input(
+    "Ask a question about this recommendation",
+    placeholder="e.g. Why is this a BUY? What are the risks?"
+)
+
+if user_question:
+    ai_response = ai_ask_why(
+        question=user_question,
+        recommendation=rec,
+        score=score,
+        confidence=confidence,
+        reasons=reasons,
+        risk_profile=risk_profile,
+        market=market,
+        portfolio_mode=False
+    )
+
+    st.info(ai_response)
+
+# ==============================
+# ASK THE AI — WHY? (Portfolio)
+# ==============================
+st.markdown("## 🤖 Ask the AI (Portfolio View)")
+
+portfolio_question = st.text_input(
+    "Ask a question about the portfolio decision",
+    placeholder="e.g. Why should I HOLD this portfolio?"
+)
+
+if portfolio_question:
+    ai_response = ai_ask_why(
+        question=portfolio_question,
+        recommendation=portfolio_action,
+        score=portfolio_result["risk_score"],
+        confidence=portfolio_confidence,
+        reasons=portfolio_result.get("warnings", []) + portfolio_result.get("insights", []),
+        risk_profile=risk_profile,
+        market=market,
+        portfolio_mode=True
+    )
+
+    st.info(ai_response)
 
 st.markdown("## 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
