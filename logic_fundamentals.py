@@ -5,30 +5,34 @@ import yfinance as yf
 # ======================================================
 
 def safe_num(val, default=None):
+    """
+    Safely converts values to float.
+    Prevents None / string / NaN propagation.
+    """
     try:
         if val is None:
             return default
         if isinstance(val, (int, float)):
-            return val
+            return float(val)
         return float(val)
-    except:
+    except Exception:
         return default
 
 
 # ======================================================
-# FUNDAMENTALS FETCH
+# FUNDAMENTALS FETCH (YAHOO FINANCE)
 # ======================================================
 
 def fetch_fundamentals(symbol):
     """
-    Fetches fundamentals from Yahoo Finance
-    Returns ONLY numeric-safe values (float or None)
+    Fetches company fundamentals from Yahoo Finance.
+    Returns ONLY numeric-safe values (float or None).
     """
 
     try:
         ticker = yf.Ticker(symbol + ".NS")
-        info = ticker.info
-    except:
+        info = ticker.info or {}
+    except Exception:
         info = {}
 
     fund = {
@@ -48,38 +52,38 @@ def fetch_fundamentals(symbol):
 
 
 # ======================================================
-# FALLBACK ESTIMATIONS
+# FALLBACK ESTIMATIONS (CONSERVATIVE)
 # ======================================================
 
 def apply_fundamental_fallbacks(fund):
     """
-    Conservative rule-based fallbacks
-    Prevents None propagation into scoring & UI
+    Conservative rule-based fallbacks.
+    Prevents None values from breaking scoring & UI.
     """
 
     # ROCE ↔ ROE inference
-    if fund["ROCE"] is None and fund["ROE"] is not None:
+    if fund.get("ROCE") is None and fund.get("ROE") is not None:
         fund["ROCE"] = round(fund["ROE"] * 0.8, 3)
 
-    if fund["ROE"] is None and fund["ROCE"] is not None:
+    if fund.get("ROE") is None and fund.get("ROCE") is not None:
         fund["ROE"] = round(fund["ROCE"] * 0.9, 3)
 
     # Net margin proxy
-    if fund["NetMargin"] is None and fund["ROE"] is not None:
+    if fund.get("NetMargin") is None and fund.get("ROE") is not None:
         fund["NetMargin"] = round(fund["ROE"] * 0.35, 3)
 
     # Interest coverage proxy
-    if fund["InterestCover"] is None:
-        if fund["DebtEquity"] is not None:
+    if fund.get("InterestCover") is None:
+        if fund.get("DebtEquity") is not None:
             fund["InterestCover"] = max(1.0, 5 - fund["DebtEquity"] * 2)
         else:
             fund["InterestCover"] = 2.0
 
-    # Growth defaults (conservative)
-    if fund["RevenueGrowth"] is None:
+    # Growth defaults (very conservative)
+    if fund.get("RevenueGrowth") is None:
         fund["RevenueGrowth"] = 0.05
 
-    if fund["EPSGrowth"] is None:
+    if fund.get("EPSGrowth") is None:
         fund["EPSGrowth"] = fund["RevenueGrowth"]
 
     return fund
@@ -90,6 +94,10 @@ def apply_fundamental_fallbacks(fund):
 # ======================================================
 
 def evaluate_metric(metric, value):
+    """
+    Labels a metric as Healthy / Watch / Weak / Not Available
+    """
+
     if value is None:
         return "⚪ Not Available"
 
@@ -108,6 +116,7 @@ def evaluate_metric(metric, value):
 
     good, weak = thresholds[metric]
 
+    # Inverse metrics
     if metric in ["DebtEquity", "PE"]:
         if value <= good:
             return "🟢 Healthy"
@@ -116,13 +125,13 @@ def evaluate_metric(metric, value):
         else:
             return "🔴 Risky"
 
+    # Normal metrics
+    if value >= good:
+        return "🟢 Healthy"
+    elif value >= weak:
+        return "🟡 Watch"
     else:
-        if value >= good:
-            return "🟢 Healthy"
-        elif value >= weak:
-            return "🟡 Watch"
-        else:
-            return "🔴 Weak"
+        return "🔴 Weak"
 
 
 # ======================================================
@@ -130,24 +139,29 @@ def evaluate_metric(metric, value):
 # ======================================================
 
 def detect_red_flags(fund):
+    """
+    Identifies fundamental red flags.
+    Returns a list of human-readable warnings.
+    """
+
     flags = []
 
-    if fund["InterestCover"] is not None and fund["InterestCover"] < 1.5:
+    if fund.get("InterestCover") is not None and fund["InterestCover"] < 1.5:
         flags.append("Low interest coverage")
 
-    if fund["DebtEquity"] is not None and fund["DebtEquity"] > 2:
+    if fund.get("DebtEquity") is not None and fund["DebtEquity"] > 2:
         flags.append("High leverage")
 
-    if fund["ROE"] is not None and fund["ROE"] < 0.10:
-        flags.append("Weak ROE")
+    if fund.get("ROE") is not None and fund["ROE"] < 0.10:
+        flags.append("Weak return on equity")
 
-    if fund["NetMargin"] is not None and fund["NetMargin"] < 0.05:
-        flags.append("Thin margins")
+    if fund.get("NetMargin") is not None and fund["NetMargin"] < 0.05:
+        flags.append("Thin profit margins")
 
-    if fund["RevenueGrowth"] is not None and fund["RevenueGrowth"] < 0:
+    if fund.get("RevenueGrowth") is not None and fund["RevenueGrowth"] < 0:
         flags.append("Negative revenue growth")
 
-    if fund["EPSGrowth"] is not None and fund["EPSGrowth"] < 0:
+    if fund.get("EPSGrowth") is not None and fund["EPSGrowth"] < 0:
         flags.append("Negative earnings growth")
 
     return flags
