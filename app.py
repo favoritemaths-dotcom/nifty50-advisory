@@ -264,10 +264,18 @@ if not portfolio_mode:
 
     final_rec = conviction_label(rec, confidence, score)
 
-    st.markdown("## 📌 Final Recommendation")
-    st.success(final_rec) if "BUY" in final_rec else (
-        st.warning(final_rec) if "HOLD" in final_rec else st.error(final_rec)
-    )
+# ==============================
+# FINAL RECOMMENDATION DISPLAY
+# ==============================
+
+st.markdown("## 📌 Final Recommendation")
+
+if "BUY" in final_rec:
+    st.success(final_rec)
+elif "HOLD" in final_rec:
+    st.warning(final_rec)
+else:
+    st.error(final_rec)
 
     st.markdown("## 🧠 AI Explanation")
     st.markdown(generate_explanation(
