@@ -1,28 +1,79 @@
-import numpy as np
+# ======================================================
+# PORTFOLIO PERFORMANCE SIMULATION
+# ======================================================
+
+import math
+
 
 def simulate_portfolio_performance(portfolio, years=5):
     """
-    Simulates portfolio CAGR & max drawdown using heuristic assumptions.
+    Simulates long-term portfolio performance using heuristic assumptions.
+
+    Inputs:
+        portfolio: list of dicts with keys:
+            - stock
+            - sector
+            - allocation_pct
+        years: simulation horizon (default 5)
+
+    Returns:
+        {
+            cagr_pct: float,
+            max_drawdown_pct: float,
+            risk_adjusted_score: float
+        }
+        OR None if portfolio is invalid
     """
 
-    # Defensive defaults
-    if not portfolio:
+    # -------------------------------
+    # Validation
+    # -------------------------------
+    if not portfolio or years <= 0:
         return None
 
-    # Heuristic assumptions
-    base_return = 0.11        # 11% base CAGR
-    volatility = 0.18        # 18% volatility
+    total_alloc = sum(p.get("allocation_pct", 0) for p in portfolio)
+    if total_alloc <= 0:
+        return None
 
-    # Adjust return based on diversification
-    sectors = set(p.get("sector") for p in portfolio)
-    diversification_bonus = min(len(sectors) * 0.005, 0.02)
+    # -------------------------------
+    # Base assumptions (India equity long-term)
+    # -------------------------------
+    BASE_CAGR = 0.11        # 11% long-term equity CAGR
+    BASE_VOLATILITY = 0.18 # 18% annualized volatility
 
-    expected_cagr = base_return + diversification_bonus
+    # -------------------------------
+    # Diversification benefit
+    # -------------------------------
+    sectors = set(p.get("sector", "Unknown") for p in portfolio)
+    diversification_bonus = min(len(sectors) * 0.005, 0.025)  # max +2.5%
 
-    # Simulated drawdown logic
-    max_drawdown = round(volatility * 1.5 * 100, 1)  # %
+    expected_cagr = BASE_CAGR + diversification_bonus
 
-    risk_adjusted_score = round((expected_cagr * 100) / max_drawdown, 2)
+    # -------------------------------
+    # Concentration penalty
+    # -------------------------------
+    max_weight = max(p.get("allocation_pct", 0) for p in portfolio) / 100
+
+    if max_weight > 0.40:
+        expected_cagr -= 0.02
+    elif max_weight > 0.30:
+        expected_cagr -= 0.01
+
+    expected_cagr = max(0.04, expected_cagr)
+
+    # -------------------------------
+    # Drawdown estimation
+    # -------------------------------
+    drawdown_multiplier = 1.5
+    max_drawdown = round(BASE_VOLATILITY * drawdown_multiplier * 100, 1)
+
+    # -------------------------------
+    # Risk-adjusted score (Sharpe-like)
+    # -------------------------------
+    if max_drawdown > 0:
+        risk_adjusted_score = round((expected_cagr * 100) / max_drawdown, 2)
+    else:
+        risk_adjusted_score = 0
 
     return {
         "cagr_pct": round(expected_cagr * 100, 2),
