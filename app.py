@@ -313,13 +313,6 @@ if portfolio_mode:
         st.warning(f"HOLD – {reason}")
     else:
         st.error(f"REDUCE – {reason}")
-else:
-    if "BUY" in final_rec:
-        st.success(final_rec)
-    elif "HOLD" in final_rec:
-        st.warning(final_rec)
-    else:
-        st.error(final_rec)
 
 # ASK THE AI – WHY? (Single Stock)
 if not portfolio_mode:
