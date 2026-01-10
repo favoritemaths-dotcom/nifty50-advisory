@@ -264,6 +264,19 @@ if not portfolio_mode:
 
     final_rec = conviction_label(rec, confidence, score)
 
+    st.markdown("## 🧠 AI Explanation")
+    st.markdown(generate_explanation(
+        stock, score, rec, reasons, risk_profile, time_horizon
+    ))
+
+# ======================================================
+# PORTFOLIO MODE
+# ======================================================
+st.markdown("---")
+st.markdown("## 📊 Portfolio Intelligence")
+
+portfolio = build_portfolio(df_all, selected_stocks)
+portfolio_result = analyze_portfolio(portfolio, risk_profile)
 # ==============================
 # FINAL RECOMMENDATION DISPLAY
 # ==============================
@@ -287,20 +300,6 @@ else:
         st.warning(final_rec)
     else:
         st.error(final_rec)
-
-    st.markdown("## 🧠 AI Explanation")
-    st.markdown(generate_explanation(
-        stock, score, rec, reasons, risk_profile, time_horizon
-    ))
-
-# ======================================================
-# PORTFOLIO MODE
-# ======================================================
-st.markdown("---")
-st.markdown("## 📊 Portfolio Intelligence")
-
-portfolio = build_portfolio(df_all, selected_stocks)
-portfolio_result = analyze_portfolio(portfolio, risk_profile)
 
 st.metric("Portfolio Risk Score", portfolio_result["risk_score"])
 
