@@ -211,6 +211,9 @@ if not portfolio_mode:
 if not portfolio_mode:
     st.markdown("### 📰 Recent News")
     
+    news = fetch_news(row["Company"])
+    news_summary = analyze_news(news)
+    
     if not news:
         st.write("No recent news found.")
     else:
