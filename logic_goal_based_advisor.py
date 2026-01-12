@@ -20,6 +20,28 @@ def recommend_stocks_for_goal(
 
     recommendations = []
 
+    # -----------------------------
+    # Build required data maps
+    # -----------------------------
+    from logic_fundamentals import fetch_fundamentals
+
+    fundamentals_map = {}
+    news_map = {}
+    annual_text_map = {}
+    quarterly_text_map = {}
+
+    for _, row in df.iterrows():
+        symbol = row["Symbol"]
+
+        try:
+            fundamentals_map[symbol] = fetch_fundamentals(symbol)
+        except:
+            fundamentals_map[symbol] = None
+
+        # Safe defaults (can enhance later)
+        news_map[symbol] = None
+        annual_text_map[symbol] = ""
+        quarterly_text_map[symbol] = ""
     # -------------------------------
     # Determine investment style
     # -------------------------------
