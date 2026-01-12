@@ -45,7 +45,7 @@ def recommend_stocks_for_goal(
     # -------------------------------
     # Analyze each stock
     # -------------------------------
-    for _, row in df_all.iterrows():
+    for _, row in df.iterrows():
         symbol = row["Symbol"]
 
         fund = fundamentals_map.get(symbol)
