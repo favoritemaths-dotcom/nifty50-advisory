@@ -33,6 +33,14 @@ from logic_portfolio import (
     adjust_for_market_regime
 )
 
+@st.cache_data(ttl=1800)
+def fetch_news(company):
+    import feedparser, urllib.parse
+
+    q = urllib.parse.quote(f"{company} stock India")
+    url = f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en"
+    return feedparser.parse(url).entries[:5]
+    
 # ======================================================
 # PAGE CONFIG
 # ======================================================
