@@ -107,6 +107,32 @@ risk_profile = st.sidebar.selectbox(
     ["Conservative", "Moderate", "Aggressive"]
 )
 
+st.sidebar.markdown("---")
+st.sidebar.header("🎯 Goal-Based Investment")
+
+goal_mode = st.sidebar.checkbox(
+    "Enable Goal-Based Recommendation",
+    value=False
+)
+
+goal_duration_months = st.sidebar.slider(
+    "Investment Duration (Months)",
+    min_value=1,
+    max_value=36,
+    value=12,
+    step=1,
+    disabled=not goal_mode
+)
+
+expected_return_pref = st.sidebar.selectbox(
+    "Expected Return Preference",
+    ["Stable", "Balanced", "High Growth"],
+    disabled=not goal_mode
+)
+
+if goal_mode and portfolio_mode:
+    st.error("Please enable either Portfolio Mode or Goal-Based Mode, not both.")
+    st.stop()
 # ======================================================
 # MARKET REGIME (GLOBAL)
 # ======================================================
@@ -161,6 +187,39 @@ if "CMP (₹)" not in df.columns:
 st.subheader(f"Showing {len(df)} Nifty 50 Stocks")
 st.dataframe(df, use_container_width=True, hide_index=True)
 
+# ======================================
+# 🎯 GOAL-BASED STOCK RECOMMENDATION
+# ======================================
+
+if goal_mode:
+    st.markdown("## 🎯 Goal-Based Stock Recommendations")
+
+    from logic_goal_recommendation import recommend_stocks_for_goal
+
+    recommendations = recommend_stocks_for_goal(
+        df=df_all,
+        investment_amount=investment_amount,
+        risk_profile=risk_profile,
+        duration_months=goal_duration_months,
+        expected_return_pref=expected_return_pref
+    )
+
+    if not recommendations:
+        st.warning("No suitable stocks found for the selected goal.")
+    else:
+        st.dataframe(
+            pd.DataFrame(recommendations),
+            use_container_width=True
+        )
+
+        st.info(
+            "These recommendations are aligned to your goal, "
+            "risk profile, and investment duration. "
+            "Review periodically as conditions change."
+        )
+
+    st.stop()
+    
 # ======================================================
 # SINGLE STOCK ANALYSIS
 # ======================================================
