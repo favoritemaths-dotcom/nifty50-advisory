@@ -194,7 +194,7 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 if goal_mode:
     st.markdown("## 🎯 Goal-Based Stock Recommendations")
 
-    from logic_goal_recommendation import recommend_stocks_for_goal
+    from logic_goal_based_advisor import recommend_stocks_for_goal
 
     recommendations = recommend_stocks_for_goal(
         df=df_all,
