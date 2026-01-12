@@ -8,14 +8,11 @@ from logic_market_regime import detect_market_regime
 # ======================================================
 
 def recommend_stocks_for_goal(
-    df_all,
-    fundamentals_map,
-    news_map,
-    annual_text_map,
-    quarterly_text_map,
+    df,
     investment_amount,
     risk_profile,
-    duration_months
+    duration_months,
+    expected_return_pref
 ):
     """
     Returns a ranked list of stocks suitable for a specific investment goal
