@@ -393,6 +393,7 @@ if not portfolio_mode:
             risk_profile=risk_profile,
             market=market,
             portfolio_mode=False
+            identifier=stock
         )
 
         st.info(ai_response)
@@ -417,6 +418,7 @@ if portfolio_question:
         risk_profile=risk_profile,
         market=market,
         portfolio_mode=True
+        identifier="portfolio"
     )
 
     st.info(ai_response)
