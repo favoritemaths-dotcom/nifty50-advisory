@@ -23,6 +23,7 @@ from logic_explanation import generate_explanation
 from logic_confidence import confidence_band, conviction_label
 from logic_market_regime import detect_market_regime
 from logic_ai_explain import ai_ask_why
+from logic_thesis_breakpoints import thesis_breakpoints
 
 from logic_portfolio import (
     build_portfolio,
@@ -397,6 +398,21 @@ if not portfolio_mode:
         )
 
         st.info(ai_response)
+
+st.markdown("### ⚠️ What Could Break This Thesis?")
+
+breakpoints = thesis_breakpoints(
+    fund=fund,
+    score=score,
+    market=market,
+    risk_profile=risk_profile
+)
+
+for bp in breakpoints:
+    if "No immediate" in bp:
+        st.success(bp)
+    else:
+        st.warning(f"• {bp}")
 
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
