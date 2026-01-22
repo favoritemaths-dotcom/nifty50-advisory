@@ -54,6 +54,16 @@ st.set_page_config(
 st.title("📊 Nifty 50 – AI Portfolio Advisory")
 st.caption("Private decision-support tool | Rule-based AI engine")
 
+AI_ENABLED = True
+
+if AI_ENABLED and user_question:
+    ai_response = get_ai_response_cached(
+        ...
+    )
+    st.info(ai_response)
+elif not AI_ENABLED:
+    st.info("🤖 AI explanations are currently disabled.")
+
 # ======================================================
 # LOAD DATA
 # ======================================================
