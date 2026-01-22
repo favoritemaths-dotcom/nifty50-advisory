@@ -34,7 +34,7 @@ def ai_ask_why(
 
     return answer
     
-    def safe_ai_ask_why(**kwargs):
+def safe_ai_ask_why(**kwargs):
     try:
         return ai_ask_why(**kwargs)
     except Exception as e:
