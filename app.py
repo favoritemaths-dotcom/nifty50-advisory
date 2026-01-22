@@ -473,7 +473,7 @@ if portfolio_question:
         reasons=portfolio_result.get("warnings", []) + portfolio_result.get("insights", []),
         risk_profile=risk_profile,
         market=market,
-        portfolio_mode=True
+        portfolio_mode=True,
         identifier="portfolio"
     )
 
