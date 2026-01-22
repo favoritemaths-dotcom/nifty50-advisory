@@ -448,7 +448,7 @@ if not portfolio_mode:
             reasons=reasons,
             risk_profile=risk_profile,
             market=market,
-            portfolio_mode=False
+            portfolio_mode=False,
             identifier=stock
         )
 
