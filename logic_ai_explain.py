@@ -33,3 +33,13 @@ def ai_ask_why(
     save_to_memory(mode, identifier, question, answer)
 
     return answer
+    
+    def safe_ai_ask_why(**kwargs):
+    try:
+        return ai_ask_why(**kwargs)
+    except Exception as e:
+        return (
+            "⚠️ AI explanation temporarily unavailable.\n\n"
+            "Reason: External AI service error.\n\n"
+            "You can rely on the rule-based analysis above."
+        )
