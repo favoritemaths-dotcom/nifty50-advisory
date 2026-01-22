@@ -22,7 +22,7 @@ from logic_scoring import score_stock, detect_profile_mismatch
 from logic_explanation import generate_explanation
 from logic_confidence import confidence_band, conviction_label
 from logic_market_regime import detect_market_regime
-from logic_ai_explain import ai_ask_why
+from logic_ai_explain import safe_ai_ask_why
 from logic_thesis_breakpoints import thesis_breakpoints
 from logic_stress_test import stress_test_portfolio
 
@@ -440,7 +440,7 @@ if not portfolio_mode:
     )
 
     if user_question:
-        ai_response = ai_ask_why(
+        ai_response = safe_ai_ask_why(
             question=user_question,
             recommendation=rec,
             score=score,
@@ -465,7 +465,7 @@ portfolio_question = st.text_input(
 )
 
 if portfolio_question:
-    ai_response = ai_ask_why(
+    ai_response = safe_ai_ask_why(
         question=portfolio_question,
         recommendation=portfolio_action,
         score=portfolio_result["risk_score"],
