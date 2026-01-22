@@ -375,6 +375,22 @@ if portfolio_mode:
     else:
         st.error(f"REDUCE – {reason}")
 
+if not portfolio_mode:
+    st.markdown("### ⚠️ What Could Break This Thesis?")
+
+    breakpoints = thesis_breakpoints(
+        fund=fund,
+        score=score,
+        market=market,
+        risk_profile=risk_profile
+    )
+
+    for bp in breakpoints:
+        if "No immediate" in bp:
+            st.success(bp)
+        else:
+            st.warning(f"• {bp}")
+
 # ASK THE AI – WHY? (Single Stock)
 if not portfolio_mode:
     st.markdown("## 🤖 Ask the AI (Why?)")
@@ -398,21 +414,6 @@ if not portfolio_mode:
         )
 
         st.info(ai_response)
-
-st.markdown("### ⚠️ What Could Break This Thesis?")
-
-breakpoints = thesis_breakpoints(
-    fund=fund,
-    score=score,
-    market=market,
-    risk_profile=risk_profile
-)
-
-for bp in breakpoints:
-    if "No immediate" in bp:
-        st.success(bp)
-    else:
-        st.warning(f"• {bp}")
 
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
