@@ -362,6 +362,44 @@ for i in portfolio_result["insights"]:
 portfolio_action, reason = portfolio_final_recommendation(
     portfolio_result["risk_score"]
 )
+
+# ======================================
+# 📉 PORTFOLIO STRESS TEST
+# ======================================
+st.markdown("## 🧪 Portfolio Stress Test")
+
+stress_scenario = st.selectbox(
+    "Select a stress scenario",
+    [
+        "Market Crash (-20%)",
+        "Interest Rate Hike",
+        "Commodity Spike",
+        "Global Risk-Off",
+        "Bull Run"
+    ]
+)
+
+if st.button("Run Stress Test"):
+    stress_result = stress_test_portfolio(
+        portfolio_result=portfolio_result,
+        scenario=stress_scenario
+    )
+
+    st.metric(
+        "Stressed Risk Score",
+        stress_result["stressed_score"]
+    )
+
+    if stress_result["action_bias"] == "BUY":
+        st.success(f"Action Bias: {stress_result['action_bias']}")
+    elif stress_result["action_bias"] == "HOLD":
+        st.warning(f"Action Bias: {stress_result['action_bias']}")
+    else:
+        st.error(f"Action Bias: {stress_result['action_bias']}")
+
+    for w in stress_result["warnings"]:
+        st.warning(w)
+        
 # ==============================
 # FINAL RECOMMENDATION DISPLAY
 # ==============================
