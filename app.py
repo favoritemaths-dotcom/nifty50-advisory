@@ -27,6 +27,7 @@ from logic_thesis_breakpoints import thesis_breakpoints
 from logic_stress_test import stress_test_portfolio
 from logic_conviction_engine import conviction_check
 from logic_position_sizing import calculate_position_size
+from logic_exit_rules import exit_rules_engine
 
 from logic_portfolio import (
     build_portfolio,
@@ -496,6 +497,34 @@ if not portfolio_mode:
             {sizing['note']}
             """
                 )
+
+    # ==============================
+# STEP 11 — EXIT DISCIPLINE
+# ==============================
+st.markdown("## 🛑 Exit Discipline & Risk Control")
+
+exit_rules = exit_rules_engine(
+    recommendation=rec,
+    risk_profile=risk_profile,
+    investment_horizon=time_horizon,
+    conviction_status=conviction["status"]
+)
+
+st.warning(
+    f"**🔻 Stop-Loss Rule:** {exit_rules['stop_loss_pct']}% from entry price  
+    f"**🕒 Review Timeline:** Every {exit_rules['review_period']}
+"""
+)
+
+if exit_rules["exit_reasons"]:
+    st.markdown("### ⚠️ Additional Exit Triggers")
+    for r in exit_rules["exit_reasons"]:
+        st.warning(r)
+
+st.caption(
+    "This exit discipline is rule-based and non-negotiable. "
+    "AI cannot override capital protection rules."
+)
     
     else:
          st.info("🤖 AI is currently disabled")
