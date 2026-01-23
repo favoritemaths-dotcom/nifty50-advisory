@@ -515,8 +515,10 @@ exit_rules = exit_rules_engine(
 )
 
 st.warning(
-    f"**🔻 Stop-Loss Rule:** {exit_rules['stop_loss_pct']}% from entry price
-    f"**🕒 Review Timeline:** Every {exit_rules['review_period']}"
+    f"""
+**🔻 Stop-Loss Rule:** {exit_rules['stop_loss_pct']}% from entry price  
+**🕒 Review Timeline:** Every {exit_rules['review_period']}
+"""
 )
 
 if exit_rules["exit_reasons"]:
