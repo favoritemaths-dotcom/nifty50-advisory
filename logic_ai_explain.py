@@ -1,4 +1,7 @@
 from logic_ai_memory import load_memory, save_to_memory
+from logic_ai_provider import get_ai_provider
+
+
 def ai_ask_why(
     question: str,
     recommendation: str,
@@ -10,9 +13,17 @@ def ai_ask_why(
     portfolio_mode: bool = False,
     identifier: str = "default"
 ):
+    """
+    Senior-AI explanation layer.
+    Acts as an independent advisor reviewing the rule-based engine.
+    """
+
     provider = get_ai_provider()
-   
-SYSTEM_RULES = """
+
+    # -------------------------------
+    # SYSTEM RULES (Revised Step 9)
+    # -------------------------------
+    SYSTEM_RULES = """
 You are a senior investment advisor reviewing a rule-based investment engine.
 
 This engine provides:
@@ -38,44 +49,60 @@ You MUST:
 Your goal is to help a disciplined investor avoid mistakes.
 """
 
+    # -------------------------------
+    # MEMORY
+    # -------------------------------
     mode = "portfolio" if portfolio_mode else "stock"
     memory = load_memory(mode, identifier)
 
+    # -------------------------------
+    # CONTEXT (Structured Thinking)
+    # -------------------------------
     context = {
-    "rule_based_summary": {
-        "recommendation": recommendation,
-        "score": score,
-        "confidence": confidence,
-        "reasons": reasons,
-        "risk_profile": risk_profile,
-        "market": market
-    },
-    "investor_question": question,
-    "analysis_mode": "portfolio" if portfolio_mode else "single_stock",
-    "previous_questions": memory,
-    "response_format": [
-        "1. Rule-Based Summary",
-        "2. Independent AI Assessment",
-        "3. Risks Possibly Underestimated",
-        "4. Signals Possibly Overlooked",
-        "5. What I Would Watch Going Forward"
-    ]
-}
+        "rule_based_summary": {
+            "recommendation": recommendation,
+            "score": score,
+            "confidence": confidence,
+            "reasons": reasons,
+            "risk_profile": risk_profile,
+            "market": market,
+        },
+        "investor_question": question,
+        "analysis_mode": "portfolio" if portfolio_mode else "single_stock",
+        "previous_questions": memory,
+        "response_format": [
+            "1. Rule-Based Summary",
+            "2. Independent AI Assessment",
+            "3. Risks Possibly Underestimated",
+            "4. Signals Possibly Overlooked",
+            "5. What I Would Watch Going Forward",
+        ],
+    }
 
+    # -------------------------------
+    # AI CALL
+    # -------------------------------
     answer = provider.explain_recommendation(
-    system_rules=SYSTEM_RULES,
-    question=question,
-    context=context
-)
+        system_rules=SYSTEM_RULES,
+        question=question,
+        context=context,
+    )
 
+    # -------------------------------
+    # SAVE MEMORY
+    # -------------------------------
     save_to_memory(mode, identifier, question, answer)
 
     return answer
-    
+
+
+# -------------------------------------------------
+# SAFE WRAPPER (used by app.py)
+# -------------------------------------------------
 def safe_ai_ask_why(**kwargs):
     try:
         return ai_ask_why(**kwargs)
-    except Exception as e:
+    except Exception:
         return (
             "⚠️ AI explanation temporarily unavailable.\n\n"
             "Reason: External AI service error.\n\n"
