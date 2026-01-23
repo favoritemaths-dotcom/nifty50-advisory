@@ -497,8 +497,11 @@ if not portfolio_mode:
             {sizing['note']}
             """
                 )
+    
+    else:
+         st.info("🤖 AI is currently disabled")
 
-    # ==============================
+# ==============================
 # STEP 11 — EXIT DISCIPLINE
 # ==============================
 st.markdown("## 🛑 Exit Discipline & Risk Control")
@@ -525,9 +528,6 @@ st.caption(
     "This exit discipline is rule-based and non-negotiable. "
     "AI cannot override capital protection rules."
 )
-    
-    else:
-         st.info("🤖 AI is currently disabled")
         
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
