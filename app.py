@@ -474,8 +474,8 @@ if not portfolio_mode:
             else:
                 st.success(f"{conviction['status']}\n\n{conviction['message']}")
     
-         else:
-             st.info("🤖 AI is currently disabled")
+    else:
+         st.info("🤖 AI is currently disabled")
         
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
