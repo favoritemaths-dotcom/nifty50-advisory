@@ -441,6 +441,7 @@ if not portfolio_mode:
         placeholder="e.g. Why is this a BUY?"
     )
 
+if AI_ENABLED:
     if user_question:
         cache_key = f"{stock}_{user_question}"
         
@@ -459,6 +460,8 @@ if not portfolio_mode:
         )
 
         st.info(ai_response)
+ else:
+    st.info("🤖 AI is currently disabled")
 
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
