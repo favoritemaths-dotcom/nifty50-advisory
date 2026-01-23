@@ -28,6 +28,7 @@ from logic_stress_test import stress_test_portfolio
 from logic_conviction_engine import conviction_check
 from logic_position_sizing import calculate_position_size
 from logic_exit_rules import exit_rules_engine
+from logic_market_kill_switch import market_kill_switch
 
 from logic_portfolio import (
     build_portfolio,
@@ -528,6 +529,23 @@ st.caption(
     "This exit discipline is rule-based and non-negotiable. "
     "AI cannot override capital protection rules."
 )
+# ===============================
+# STEP 12 — PORTFOLIO KILL SWITCH
+# ===============================
+st.markdown("## 🛑 Market Regime Safety Check")
+
+kill_switch = market_kill_switch(
+    market_regime=market,
+    recommendation=rec,
+    risk_profile=risk_profile
+)
+
+if not kill_switch["allowed"]:
+    st.error(f"🛑 ACTION BLOCKED: {kill_switch['reason']}")
+elif kill_switch["action"] != rec:
+    st.warning(f"⚠ Recommendation adjusted: {kill_switch['reason']}")
+else:
+    st.success("✅ Market conditions acceptable for this action.")
         
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
