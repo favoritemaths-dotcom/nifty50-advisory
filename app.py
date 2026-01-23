@@ -501,13 +501,10 @@ if portfolio_question:
     )
 
     st.info(ai_response)
-# ===============================
-# CONVICTION CHECK (Portfolio)
-# ===============================
-     conviction = conviction_check(
-         rule_recommendation=portfolio_action,
-         rule_confidence=portfolio_confidence,
-         ai_response=ai_response
+    conviction = conviction_check(
+        rule_recommendation=portfolio_action,
+        rule_confidence=portfolio_confidence,
+        ai_response=ai_response
      )
 
      if conviction["status"].startswith("⚠️"):
