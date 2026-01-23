@@ -507,12 +507,12 @@ if portfolio_question:
         ai_response=ai_response
      )
 
-     if conviction["status"].startswith("⚠️"):
-         st.warning(f"{conviction['status']}\n\n{conviction['message']}")
-     elif conviction["status"].startswith("🟡"):
-         st.info(f"{conviction['status']}\n\n{conviction['message']}")
-     else:
-         st.success(f"{conviction['status']}\n\n{conviction['message']}")
+    if conviction["status"].startswith("⚠️"):
+        st.warning(f"{conviction['status']}\n\n{conviction['message']}")
+    elif conviction["status"].startswith("🟡"):
+        st.info(f"{conviction['status']}\n\n{conviction['message']}")
+    else:
+        st.success(f"{conviction['status']}\n\n{conviction['message']}")
 
 st.markdown("## 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
