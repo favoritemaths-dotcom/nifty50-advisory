@@ -448,8 +448,6 @@ if not portfolio_mode:
             cache_key = f"{stock}_{user_question}"
 
             ai_response = get_ai_response_cached(
-                cache_key,
-                safe_ai_ask_why,
                 question=user_question,
                 recommendation=rec,
                 score=score,
