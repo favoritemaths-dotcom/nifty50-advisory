@@ -467,15 +467,15 @@ if not portfolio_mode:
                 ai_response=ai_response
             )
 
-           if conviction["status"].startswith("⚠️"):
-               st.warning(f"{conviction['status']}\n\n{conviction['message']}")
-          elif conviction["status"].startswith("🟡"):
-               st.info(f"{conviction['status']}\n\n{conviction['message']}")
-          else:
-              st.success(f"{conviction['status']}\n\n{conviction['message']}")
+            if conviction["status"].startswith("⚠️"):
+                st.warning(f"{conviction['status']}\n\n{conviction['message']}")
+            elif conviction["status"].startswith("🟡"):
+                 st.info(f"{conviction['status']}\n\n{conviction['message']}")
+            else:
+                st.success(f"{conviction['status']}\n\n{conviction['message']}")
     
-         else:
-             st.info("🤖 AI is currently disabled")
+           else:
+               st.info("🤖 AI is currently disabled")
         
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
