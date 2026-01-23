@@ -502,6 +502,14 @@ if not portfolio_mode:
     else:
          st.info("🤖 AI is currently disabled")
 
+# -------------------------------
+# SAFE CONVICTION FALLBACK
+# -------------------------------
+if "conviction" in locals() and isinstance(conviction, dict):
+    conviction_status = conviction.get("status", "🟡 Neutral")
+else:
+    conviction_status = "🟡 Neutral (AI not consulted)"
+    
 # ==============================
 # STEP 11 — EXIT DISCIPLINE
 # ==============================
@@ -511,7 +519,7 @@ exit_rules = exit_rules_engine(
     recommendation=rec,
     risk_profile=risk_profile,
     investment_horizon=time_horizon,
-    conviction_status=conviction["status"]
+    conviction_status=conviction_status
 )
 
 st.warning(
