@@ -25,6 +25,7 @@ from logic_market_regime import detect_market_regime
 from logic_ai_explain import safe_ai_ask_why
 from logic_thesis_breakpoints import thesis_breakpoints
 from logic_stress_test import stress_test_portfolio
+from logic_conviction_engine import conviction_check
 
 from logic_portfolio import (
     build_portfolio,
