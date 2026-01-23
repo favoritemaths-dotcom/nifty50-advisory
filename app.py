@@ -475,6 +475,28 @@ if not portfolio_mode:
             else:
                 st.success(f"{conviction['status']}\n\n{conviction['message']}")
     
+                sizing = calculate_position_size(
+                    total_capital=investment_amount,
+                    recommendation=rec,
+                    confidence=confidence,
+                    risk_profile=risk_profile,
+                    conviction_status="🟢 AI conviction assumed"
+                )
+
+                st.markdown("### 📐 Position Sizing Recommendation")
+
+                if sizing["amount"] == 0:
+                    st.error(sizing["note"])
+                else:
+                    st.success(
+                        f"""
+            **Suggested Allocation:** {sizing['allocation_pct']}%  
+            **Investment Amount:** ₹{sizing['amount']:,}
+
+            {sizing['note']}
+            """
+                )
+    
     else:
          st.info("🤖 AI is currently disabled")
         
