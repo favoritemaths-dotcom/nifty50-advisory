@@ -7,9 +7,13 @@ def market_kill_switch(
     Prevents aggressive actions during hostile market regimes.
     """
 
-    # Normalize
-    regime = market_regime.lower() if market_regime else "unknown"
-
+    # Normalize market regime safely
+if isinstance(market_regime, str):
+    regime = market_regime.lower()
+elif isinstance(market_regime, dict):
+    regime = str(market_regime.get("trend", "unknown")).lower()
+else:
+    regime = "unknown"
     if regime in ["crash", "risk-off", "extreme_volatility"]:
         if recommendation == "BUY":
             return {
