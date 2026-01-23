@@ -35,6 +35,8 @@ from logic_portfolio import (
     adjust_for_market_regime
 )
 
+AI_ENABLED = True
+
 @st.cache_data(ttl=1800)
 def fetch_news(company):
     import feedparser, urllib.parse
