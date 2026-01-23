@@ -431,8 +431,10 @@ if not portfolio_mode:
             st.success(bp)
         else:
             st.warning(f"• {bp}")
-
-# ASK THE AI – WHY? (Single Stock)
+            
+# =========================================
+# ASK THE AI — WHY? (Single Stock)
+# =========================================
 if not portfolio_mode:
     st.markdown("## 🤖 Ask the AI (Why?)")
 
@@ -441,28 +443,28 @@ if not portfolio_mode:
         placeholder="e.g. Why is this a BUY?"
     )
 
-if AI_ENABLED:
-    if user_question:
-        cache_key = f"{stock}_{user_question}"
-        
-        ai_response = get_ai_response_cached(
-            key=cache_key,
-            call_fn=safe_ai_ask_why,
-            question=user_question,
-            recommendation=rec,
-            score=score,
-            confidence=confidence,
-            reasons=reasons,
-            risk_profile=risk_profile,
-            market=market,
-            portfolio_mode=False,
-            identifier=stock
-        )
+    if AI_ENABLED:
+        if user_question:
+            cache_key = f"{stock}_{user_question}"
 
-        st.info(ai_response)
+            ai_response = get_ai_response_cached(
+                key=cache_key,
+                call_fn=safe_ai_ask_why,
+                question=user_question,
+                recommendation=rec,
+                score=score,
+                confidence=confidence,
+                reasons=reasons,
+                risk_profile=risk_profile,
+                market=market,
+                portfolio_mode=False,
+                identifier=stock
+            )
+
+            st.info(ai_response)
+    else:
+        st.info("🤖 AI is currently disabled")
         
-elif not AI_ENABLED:
-    st.info("🤖 AI is currently disabled")
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
 # ==============================
