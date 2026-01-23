@@ -460,8 +460,8 @@ if AI_ENABLED:
         )
 
         st.info(ai_response)
- else:
-    st.info("🤖 AI is currently disabled")
+     else:
+        st.info("🤖 AI is currently disabled")
 
 # ==============================
 # ASK THE AI — WHY? (Portfolio)
