@@ -1,64 +1,135 @@
-# ============================================================
-# AI PROVIDER ABSTRACTION LAYER
-# Safe scaffold – no external API calls yet
-# ============================================================
+# logic_ai_provider.py
+# =========================================================
+# AUTO AI PROVIDER
+# - Uses Gemini if available (FREE)
+# - Falls back safely to rule-based explanation
+# - NEVER crashes the app
+# =========================================================
 
-from typing import Dict, List, Optional
+import os
+import json
+
+# ---------------------------------------------------------
+# Gemini SDK (safe import)
+# ---------------------------------------------------------
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except Exception:
+    GEMINI_AVAILABLE = False
 
 
-class AIProvider:
+# =========================================================
+# FALLBACK PROVIDER (Rule-based explanation)
+# =========================================================
+
+class FallbackAIProvider:
     """
-    Base interface for AI providers (ChatGPT, Gemini, etc.)
+    Used when:
+    - Gemini API key missing
+    - Gemini quota exceeded
+    - Any AI error occurs
     """
 
-    def explain_recommendation(
-        self,
-        question: str,
-        context: Dict
-    ) -> str:
-        raise NotImplementedError
+    def explain_recommendation(self, system_rules, question, context):
+        rb = context.get("rule_based_summary", {})
 
+        lines = []
+        lines.append("### 🧠 AI Advisor (Rule-Based Fallback)")
+        lines.append("")
+        lines.append("⚠️ External AI unavailable. Showing disciplined fallback analysis.")
+        lines.append("")
+        lines.append("#### 1️⃣ Rule-Based Summary")
+        lines.append(f"- Recommendation: **{rb.get('recommendation')}**")
+        lines.append(f"- Score: **{rb.get('score')} / 100**")
+        lines.append(f"- Confidence: **{rb.get('confidence')}**")
+        lines.append(f"- Risk Profile: **{rb.get('risk_profile')}**")
 
-class MockAIProvider(AIProvider):
-    """
-    Default provider used until real AI is enabled.
-    This keeps the app stable and deployable.
-    """
+        if rb.get("reasons"):
+            lines.append("")
+            lines.append("#### 2️⃣ Key Supporting Factors")
+            for r in rb["reasons"]:
+                lines.append(f"• {r}")
 
-    def explain_recommendation(
-        self,
-        question: str,
-        context: Dict
-    ) -> str:
-        recommendation = context.get("recommendation", "N/A")
-        score = context.get("score", "N/A")
-        confidence = context.get("confidence", "N/A")
-        risk_profile = context.get("risk_profile", "N/A")
-
-        return (
-            f"🔍 **AI Insight (Mock Mode)**\n\n"
-            f"**Your Question:** {question}\n\n"
-            f"**Recommendation:** {recommendation}\n"
-            f"**Score:** {score}\n"
-            f"**Confidence:** {confidence}\n"
-            f"**Risk Profile:** {risk_profile}\n\n"
-            f"This recommendation is derived from a combination of:\n"
-            f"- Fundamentals quality\n"
-            f"- Valuation comfort\n"
-            f"- News sentiment\n"
-            f"- Risk alignment\n\n"
-            f"⚠️ This is a placeholder AI response. "
-            f"Live AI reasoning (ChatGPT / Gemini) will be enabled soon."
+        lines.append("")
+        lines.append("#### 3️⃣ AI Judgment")
+        lines.append(
+            "Based on available quantitative and rule-based signals, "
+            "the recommendation appears internally consistent. "
+            "However, absence of live qualitative AI analysis means "
+            "macro, management quality, and narrative risks may not be fully captured."
         )
 
+        lines.append("")
+        lines.append("#### 4️⃣ What to Watch")
+        lines.append("• Earnings consistency")
+        lines.append("• Valuation expansion or compression")
+        lines.append("• Market regime changes")
 
-# ------------------------------------------------------------
-# Provider selector (future-proof)
-# ------------------------------------------------------------
+        return "\n".join(lines)
 
-def get_ai_provider(provider_name: Optional[str] = None) -> AIProvider:
+
+# =========================================================
+# GEMINI PROVIDER
+# =========================================================
+
+class GeminiAIProvider:
+    def __init__(self):
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("Gemini API key not found")
+
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel("gemini-pro")
+
+    def explain_recommendation(self, system_rules, question, context):
+        prompt = f"""
+{system_rules}
+
+========================
+CONTEXT (JSON)
+========================
+{json.dumps(context, indent=2)}
+
+========================
+USER QUESTION
+========================
+{question}
+
+========================
+INSTRUCTIONS
+========================
+Respond clearly using this structure:
+
+1. Rule-Based Summary
+2. Independent AI Assessment
+3. Risks Possibly Underestimated
+4. Signals Possibly Overlooked
+5. What I Would Watch Going Forward
+
+Be conservative. Be honest. Avoid false certainty.
+"""
+
+        response = self.model.generate_content(prompt)
+
+        return response.text
+
+
+# =========================================================
+# PROVIDER SELECTOR (AUTO MODE)
+# =========================================================
+
+def get_ai_provider():
     """
-    Returns the active AI provider.
-    Default = MockAIProvider
+    AUTO mode:
+    - Try Gemini
+    - If anything fails → fallback provider
     """
-    return MockAIProvider()
+
+    if GEMINI_AVAILABLE and os.getenv("GEMINI_API_KEY"):
+        try:
+            return GeminiAIProvider()
+        except Exception:
+            pass
+
+    return FallbackAIProvider()
