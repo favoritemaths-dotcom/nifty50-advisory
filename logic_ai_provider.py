@@ -42,8 +42,8 @@ class GeminiAIProvider(AIProvider):
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.endpoint = (
-            "https://generativelanguage.googleapis.com/v1/"
-            "models/gemini-1.5-flash-latest:generateContent"
+            "https://generativelanguage.googleapis.com/v1beta/"
+            "models/gemini-pro:generateContent"
         )
 
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
