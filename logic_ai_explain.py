@@ -84,7 +84,6 @@ Your goal is to help a disciplined investor avoid mistakes.
     # AI CALL
     # -------------------------------
     answer = provider.explain_recommendation(
-        system_rules=SYSTEM_RULES,
         question=question,
         context=context,
     )
