@@ -597,3 +597,36 @@ st.markdown("## 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
 
 st.caption("Prices may be delayed. For private analytical use only.")
+# ======================================================
+# 🧠 TALK TO YOUR AI ADVISOR (STEP 13)
+# ======================================================
+
+st.markdown("---")
+st.markdown("## 🧠 Talk to Your AI Advisor")
+
+st.caption(
+    "Ask questions about risks, timing, conviction, or whether this "
+    "recommendation truly fits your profile."
+)
+
+user_question = st.text_input(
+    "Ask your AI advisor (e.g. 'Is this too risky for me?' or 'What could go wrong?')",
+    placeholder="Type your question here..."
+)
+
+if user_question:
+    with st.spinner("AI advisor thinking..."):
+        ai_response = safe_ai_ask_why(
+            question=user_question,
+            recommendation=rec if not portfolio_mode else portfolio_action,
+            score=score if not portfolio_mode else portfolio_result["risk_score"],
+            confidence=confidence if not portfolio_mode else portfolio_confidence,
+            reasons=reasons if not portfolio_mode else portfolio_result.get("insights", []),
+            risk_profile=risk_profile,
+            market=market.get("regime") if market else None,
+            portfolio_mode=portfolio_mode,
+            identifier=stock if not portfolio_mode else "portfolio"
+        )
+
+    st.markdown("### 🧠 AI Advisor Response")
+    st.info(ai_response)
