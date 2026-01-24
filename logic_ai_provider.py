@@ -1,135 +1,109 @@
-# logic_ai_provider.py
-# =========================================================
-# AUTO AI PROVIDER
-# - Uses Gemini if available (FREE)
-# - Falls back safely to rule-based explanation
-# - NEVER crashes the app
-# =========================================================
+# ============================================================
+# AI PROVIDER ABSTRACTION LAYER
+# Supports: Mock (fallback), Gemini (active), OpenAI (future)
+# ============================================================
 
 import os
-import json
-
-# ---------------------------------------------------------
-# Gemini SDK (safe import)
-# ---------------------------------------------------------
-try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
-except Exception:
-    GEMINI_AVAILABLE = False
+import requests
+from typing import Dict, Optional
 
 
-# =========================================================
-# FALLBACK PROVIDER (Rule-based explanation)
-# =========================================================
+# ----------------------------
+# Base Interface
+# ----------------------------
+class AIProvider:
+    def explain_recommendation(self, *, question: str, context: Dict) -> str:
+        raise NotImplementedError
 
-class FallbackAIProvider:
-    """
-    Used when:
-    - Gemini API key missing
-    - Gemini quota exceeded
-    - Any AI error occurs
-    """
 
-    def explain_recommendation(self, system_rules, question, context):
+# ----------------------------
+# Mock Provider (SAFE FALLBACK)
+# ----------------------------
+class MockAIProvider(AIProvider):
+    def explain_recommendation(self, *, question: str, context: Dict) -> str:
         rb = context.get("rule_based_summary", {})
-
-        lines = []
-        lines.append("### 🧠 AI Advisor (Rule-Based Fallback)")
-        lines.append("")
-        lines.append("⚠️ External AI unavailable. Showing disciplined fallback analysis.")
-        lines.append("")
-        lines.append("#### 1️⃣ Rule-Based Summary")
-        lines.append(f"- Recommendation: **{rb.get('recommendation')}**")
-        lines.append(f"- Score: **{rb.get('score')} / 100**")
-        lines.append(f"- Confidence: **{rb.get('confidence')}**")
-        lines.append(f"- Risk Profile: **{rb.get('risk_profile')}**")
-
-        if rb.get("reasons"):
-            lines.append("")
-            lines.append("#### 2️⃣ Key Supporting Factors")
-            for r in rb["reasons"]:
-                lines.append(f"• {r}")
-
-        lines.append("")
-        lines.append("#### 3️⃣ AI Judgment")
-        lines.append(
-            "Based on available quantitative and rule-based signals, "
-            "the recommendation appears internally consistent. "
-            "However, absence of live qualitative AI analysis means "
-            "macro, management quality, and narrative risks may not be fully captured."
+        return (
+            "🧠 **AI Advisor (Rule-Based Fallback)**\n\n"
+            "⚠️ External AI unavailable. Showing disciplined fallback analysis.\n\n"
+            f"**Recommendation:** {rb.get('recommendation', 'N/A')}\n"
+            f"**Score:** {rb.get('score', 'N/A')}\n"
+            f"**Confidence:** {rb.get('confidence', 'N/A')}\n"
+            f"**Risk Profile:** {rb.get('risk_profile', 'N/A')}\n\n"
+            "This response is generated from internal models only."
         )
 
-        lines.append("")
-        lines.append("#### 4️⃣ What to Watch")
-        lines.append("• Earnings consistency")
-        lines.append("• Valuation expansion or compression")
-        lines.append("• Market regime changes")
 
-        return "\n".join(lines)
+# ----------------------------
+# Gemini Provider (FREE TIER)
+# ----------------------------
+class GeminiAIProvider(AIProvider):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.endpoint = (
+            "https://generativelanguage.googleapis.com/v1beta/"
+            "models/gemini-pro:generateContent"
+        )
 
-
-# =========================================================
-# GEMINI PROVIDER
-# =========================================================
-
-class GeminiAIProvider:
-    def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("Gemini API key not found")
-
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-pro")
-
-    def explain_recommendation(self, system_rules, question, context):
-        prompt = f"""
+    def explain_recommendation(self, *, question: str, context: Dict) -> str:
+        system_rules = context.get("system_rules", "")
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": f"""
 {system_rules}
 
-========================
-CONTEXT (JSON)
-========================
-{json.dumps(context, indent=2)}
-
-========================
-USER QUESTION
-========================
+Investor Question:
 {question}
 
-========================
-INSTRUCTIONS
-========================
-Respond clearly using this structure:
-
-1. Rule-Based Summary
-2. Independent AI Assessment
-3. Risks Possibly Underestimated
-4. Signals Possibly Overlooked
-5. What I Would Watch Going Forward
-
-Be conservative. Be honest. Avoid false certainty.
+Context:
+{context}
 """
+                        }
+                    ]
+                }
+            ]
+        }
 
-        response = self.model.generate_content(prompt)
+        response = requests.post(
+            f"{self.endpoint}?key={self.api_key}",
+            json=payload,
+            timeout=20,
+        )
 
-        return response.text
+        response.raise_for_status()
+        data = response.json()
+
+        return (
+            data["candidates"][0]["content"]["parts"][0]["text"]
+        )
 
 
-# =========================================================
-# PROVIDER SELECTOR (AUTO MODE)
-# =========================================================
-
-def get_ai_provider():
+# ----------------------------
+# Provider Selector (AUTO)
+# ----------------------------
+def get_ai_provider(provider_name: Optional[str] = None) -> AIProvider:
     """
-    AUTO mode:
-    - Try Gemini
-    - If anything fails → fallback provider
+    Auto-selects the best available AI provider.
+    Priority:
+    1. Gemini (if API key exists)
+    2. Mock fallback
     """
 
-    if GEMINI_AVAILABLE and os.getenv("GEMINI_API_KEY"):
-        try:
-            return GeminiAIProvider()
-        except Exception:
-            pass
+    # Explicit override (future use)
+    if provider_name == "mock":
+        return MockAIProvider()
 
-    return FallbackAIProvider()
+    if provider_name == "gemini":
+        key = os.getenv("GEMINI_API_KEY")
+        if key:
+            return GeminiAIProvider(key)
+        return MockAIProvider()
+
+    # AUTO MODE
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key:
+        return GeminiAIProvider(gemini_key)
+
+    return MockAIProvider()
