@@ -59,6 +59,7 @@ Your goal is to help a disciplined investor avoid mistakes.
     # CONTEXT (Structured Thinking)
     # -------------------------------
     context = {
+        "system_rules": SYSTEM_RULES,
         "rule_based_summary": {
             "recommendation": recommendation,
             "score": score,
