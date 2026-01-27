@@ -1,8 +1,6 @@
 import streamlit as st
 import json
 import os
-from google.oauth2 import service_account
-from google.cloud import aiplatform
 
 # logic_ai_explain.py
 # --------------------------------------------
@@ -12,47 +10,6 @@ from google.cloud import aiplatform
 import os
 from logic_ai_provider import get_ai_provider
 from logic_ai_memory import load_memory, save_to_memory
-
-def _load_vertex_credentials():
-    if "vertex_ai" not in st.secrets:
-        return False
-
-    creds_dict = dict(st.secrets["vertex_ai"])
-
-    credentials = service_account.Credentials.from_service_account_info(
-        creds_dict
-    )
-
-    aiplatform.init(
-        project=creds_dict["project_id"],
-        location="us-central1",
-        credentials=credentials,
-    )
-
-    return True
-
-VERTEX_READY = _load_vertex_credentials()
-
-def _validate_vertex_env():
-    """
-    Ensures required Vertex AI environment variables exist.
-    This avoids silent fallback and gives clear errors.
-    """
-    project = os.getenv("GOOGLE_CLOUD_PROJECT")
-    location = os.getenv("GOOGLE_CLOUD_LOCATION")
-
-    if not project:
-        raise RuntimeError(
-            "Missing GOOGLE_CLOUD_PROJECT environment variable. "
-            "Set it to your GCP Project ID (e.g. gen-lang-client-0161334899)."
-        )
-
-    if not location:
-        raise RuntimeError(
-            "Missing GOOGLE_CLOUD_LOCATION environment variable. "
-            "Recommended: us-central1."
-        )
-
 
 def ai_ask_why(
     question: str,
