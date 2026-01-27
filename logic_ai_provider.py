@@ -1,54 +1,57 @@
-# =========================================================
-# AI PROVIDER ABSTRACTION LAYER
-# Gemini (FREE) + Mock fallback
-# =========================================================
+# logic_ai_provider.py
+# ======================================================
+# Vertex AI Gemini Provider (PRODUCTION READY)
+# ======================================================
 
-import os
-import requests
 from typing import Dict, Optional
+import os
 
+from google.cloud import aiplatform
+from vertexai.preview.generative_models import GenerativeModel
 
-# ---------------------------
+# ------------------------------------------------------
 # Base Interface
-# ---------------------------
+# ------------------------------------------------------
 class AIProvider:
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
         raise NotImplementedError
 
 
-# ---------------------------
-# SAFE FALLBACK PROVIDER
-# ---------------------------
+# ------------------------------------------------------
+# Mock Provider (Fallback)
+# ------------------------------------------------------
 class MockAIProvider(AIProvider):
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
         rb = context.get("rule_based_summary", {})
-
         return (
-            "🧠 **AI Advisor (Rule-Based Fallback)**\n\n"
-            "⚠️ External AI unavailable. Showing disciplined fallback analysis.\n\n"
+            "**🧠 AI Advisor (Rule-Based Fallback)**\n\n"
+            "⚠️ External AI unavailable.\n\n"
             f"**Question:** {question}\n\n"
             f"**Recommendation:** {rb.get('recommendation', 'N/A')}\n"
             f"**Score:** {rb.get('score', 'N/A')}\n"
-            f"**Confidence:** {rb.get('confidence', 'N/A')}\n"
-            f"**Risk Profile:** {rb.get('risk_profile', 'N/A')}\n\n"
-            "This response is generated from internal rule-based logic only."
+            f"**Confidence:** {rb.get('confidence', 'N/A')}\n\n"
+            "This response is generated purely from internal logic."
         )
 
 
-# ---------------------------
-# GEMINI PROVIDER (WORKING)
-# ---------------------------
-class GeminiAIProvider(AIProvider):
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.endpoint = (
-            "https://generativelanguage.googleapis.com/v1beta/"
-            "models/gemini-pro:generateContent"
-        )
+# ------------------------------------------------------
+# Vertex AI Gemini Provider
+# ------------------------------------------------------
+class GeminiVertexProvider(AIProvider):
+    def __init__(self):
+        project = os.getenv("GCP_PROJECT")
+        location = os.getenv("GCP_LOCATION", "us-central1")
+
+        if not project:
+            raise RuntimeError("GCP_PROJECT env var not set")
+
+        aiplatform.init(project=project, location=location)
+
+        self.model = GenerativeModel("gemini-1.5-flash")
 
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
         system_rules = context.get("system_rules", "")
-        rule_summary = context.get("rule_based_summary", {})
+        rb = context.get("rule_based_summary", {})
 
         prompt = f"""
 {system_rules}
@@ -57,50 +60,30 @@ Investor Question:
 {question}
 
 Rule-Based Summary:
-{rule_summary}
-
-Respond clearly, conservatively, and structured.
+Recommendation: {rb.get('recommendation')}
+Score: {rb.get('score')}
+Confidence: {rb.get('confidence')}
+Risk Profile: {rb.get('risk_profile')}
+Reasons: {rb.get('reasons')}
+Market: {rb.get('market')}
 """
 
-        payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": prompt}
-                    ]
-                }
-            ]
-        }
-
-        response = requests.post(
-            f"{self.endpoint}?key={self.api_key}",
-            json=payload,
-            timeout=30,
+        response = self.model.generate_content(
+            prompt,
+            generation_config={
+                "temperature": 0.3,
+                "max_output_tokens": 512,
+            },
         )
 
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Gemini API Error {response.status_code}: {response.text}"
-            )
-
-        data = response.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+        return response.text
 
 
-# ---------------------------
-# PROVIDER SELECTOR (AUTO)
-# ---------------------------
+# ------------------------------------------------------
+# Provider Selector
+# ------------------------------------------------------
 def get_ai_provider(provider_name: Optional[str] = None) -> AIProvider:
-    gemini_key = os.getenv("GEMINI_API_KEY")
-
-    if provider_name == "mock":
+    try:
+        return GeminiVertexProvider()
+    except Exception:
         return MockAIProvider()
-
-    if provider_name == "gemini" and gemini_key:
-        return GeminiAIProvider(gemini_key)
-
-    # AUTO MODE
-    if gemini_key:
-        return GeminiAIProvider(gemini_key)
-
-    return MockAIProvider()
