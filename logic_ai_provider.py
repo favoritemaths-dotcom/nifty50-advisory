@@ -1,30 +1,30 @@
 # logic_ai_provider.py
-# ======================================================
-# Vertex AI Gemini Provider (PRODUCTION READY)
-# ======================================================
+# =================================================
+# Vertex AI Gemini Provider (Production Ready)
+# =================================================
 
 from typing import Dict, Optional
-import os
-
+import streamlit as st
+from google.oauth2 import service_account
 from google.cloud import aiplatform
 from vertexai.preview.generative_models import GenerativeModel
 
-# ------------------------------------------------------
+# -------------------------------------------------
 # Base Interface
-# ------------------------------------------------------
+# -------------------------------------------------
 class AIProvider:
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
         raise NotImplementedError
 
 
-# ------------------------------------------------------
-# Mock Provider (Fallback)
-# ------------------------------------------------------
-class MockAIProvider(AIProvider):
+# -------------------------------------------------
+# Mock / Fallback Provider
+# -------------------------------------------------
+class FallbackAIProvider(AIProvider):
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
         rb = context.get("rule_based_summary", {})
         return (
-            "**🧠 AI Advisor (Rule-Based Fallback)**\n\n"
+            "🧠 **AI Advisor (Rule-Based Fallback)**\n\n"
             "⚠️ External AI unavailable.\n\n"
             f"**Question:** {question}\n\n"
             f"**Recommendation:** {rb.get('recommendation', 'N/A')}\n"
@@ -34,24 +34,16 @@ class MockAIProvider(AIProvider):
         )
 
 
-# ------------------------------------------------------
-# Vertex AI Gemini Provider
-# ------------------------------------------------------
+# -------------------------------------------------
+# Vertex Gemini Provider
+# -------------------------------------------------
 class GeminiVertexProvider(AIProvider):
     def __init__(self):
-        project = os.getenv("GCP_PROJECT")
-        location = os.getenv("GCP_LOCATION", "us-central1")
-
-        if not project:
-            raise RuntimeError("GCP_PROJECT env var not set")
-
-        aiplatform.init(project=project, location=location)
-
         self.model = GenerativeModel("gemini-1.5-flash")
 
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
-        system_rules = context.get("system_rules", "")
         rb = context.get("rule_based_summary", {})
+        system_rules = context.get("system_rules", "")
 
         prompt = f"""
 {system_rules}
@@ -75,15 +67,40 @@ Market: {rb.get('market')}
                 "max_output_tokens": 512,
             },
         )
-
         return response.text
 
 
-# ------------------------------------------------------
+# -------------------------------------------------
+# Vertex Credential Loader (SINGLE SOURCE OF TRUTH)
+# -------------------------------------------------
+def _load_vertex_credentials() -> bool:
+    if "vertex_ai" not in st.secrets:
+        return False
+
+    creds_dict = dict(st.secrets["vertex_ai"])
+
+    credentials = service_account.Credentials.from_service_account_info(
+        creds_dict
+    )
+
+    aiplatform.init(
+        project=creds_dict["project_id"],
+        location="us-central1",
+        credentials=credentials,
+    )
+
+    return True
+
+
+# 🔴 STEP 4 — THIS LINE WAS MISSING / CONFUSED BEFORE
+VERTEX_READY = _load_vertex_credentials()
+
+
+# -------------------------------------------------
 # Provider Selector
-# ------------------------------------------------------
+# -------------------------------------------------
 def get_ai_provider(provider_name: Optional[str] = None) -> AIProvider:
-    try:
-        return GeminiVertexProvider()
-    except Exception:
-        return MockAIProvider()
+    if not VERTEX_READY:
+        return FallbackAIProvider()
+
+    return GeminiVertexProvider()
