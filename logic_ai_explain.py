@@ -1,5 +1,32 @@
-from logic_ai_memory import load_memory, save_to_memory
+# logic_ai_explain.py
+# --------------------------------------------
+# AI Explanation Layer (Vertex Gemini + Fallback)
+# --------------------------------------------
+
+import os
 from logic_ai_provider import get_ai_provider
+from logic_ai_memory import load_memory, save_to_memory
+
+
+def _validate_vertex_env():
+    """
+    Ensures required Vertex AI environment variables exist.
+    This avoids silent fallback and gives clear errors.
+    """
+    project = os.getenv("GOOGLE_CLOUD_PROJECT")
+    location = os.getenv("GOOGLE_CLOUD_LOCATION")
+
+    if not project:
+        raise RuntimeError(
+            "Missing GOOGLE_CLOUD_PROJECT environment variable. "
+            "Set it to your GCP Project ID (e.g. gen-lang-client-0161334899)."
+        )
+
+    if not location:
+        raise RuntimeError(
+            "Missing GOOGLE_CLOUD_LOCATION environment variable. "
+            "Recommended: us-central1."
+        )
 
 
 def ai_ask_why(
@@ -11,18 +38,18 @@ def ai_ask_why(
     risk_profile: str,
     market: str = None,
     portfolio_mode: bool = False,
-    identifier: str = "default"
+    identifier: str = "default",
 ):
     """
-    Senior-AI explanation layer.
-    Acts as an independent advisor reviewing the rule-based engine.
+    Senior AI explanation layer.
+    Uses Vertex Gemini if available, otherwise fallback.
     """
+
+    # ✅ Validate environment early
+    _validate_vertex_env()
 
     provider = get_ai_provider()
 
-    # -------------------------------
-    # SYSTEM RULES (Revised Step 9)
-    # -------------------------------
     SYSTEM_RULES = """
 You are a senior investment advisor reviewing a rule-based investment engine.
 
@@ -49,15 +76,9 @@ You MUST:
 Your goal is to help a disciplined investor avoid mistakes.
 """
 
-    # -------------------------------
-    # MEMORY
-    # -------------------------------
     mode = "portfolio" if portfolio_mode else "stock"
     memory = load_memory(mode, identifier)
 
-    # -------------------------------
-    # CONTEXT (Structured Thinking)
-    # -------------------------------
     context = {
         "system_rules": SYSTEM_RULES,
         "rule_based_summary": {
@@ -69,7 +90,7 @@ Your goal is to help a disciplined investor avoid mistakes.
             "market": market,
         },
         "investor_question": question,
-        "analysis_mode": "portfolio" if portfolio_mode else "single_stock",
+        "analysis_mode": mode,
         "previous_questions": memory,
         "response_format": [
             "1. Rule-Based Summary",
@@ -80,27 +101,24 @@ Your goal is to help a disciplined investor avoid mistakes.
         ],
     }
 
-    # -------------------------------
-    # AI CALL
-    # -------------------------------
     answer = provider.explain_recommendation(
         question=question,
         context=context,
     )
 
-    # -------------------------------
-    # SAVE MEMORY
-    # -------------------------------
     save_to_memory(mode, identifier, question, answer)
-
     return answer
 
 
-# -------------------------------------------------
-# SAFE WRAPPER (used by app.py)
-# -------------------------------------------------
 def safe_ai_ask_why(**kwargs):
+    """
+    Safe wrapper for Streamlit UI.
+    """
     try:
         return ai_ask_why(**kwargs)
     except Exception as e:
-        return f"❌ AI ERROR:\n\n{str(e)}"
+        return (
+            "❌ AI ERROR:\n\n"
+            f"{str(e)}\n\n"
+            "You can still rely on the rule-based analysis above."
+        )
