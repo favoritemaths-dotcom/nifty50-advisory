@@ -3,3 +3,6 @@ pandas
 yfinance
 feedparser
 pypdf
+google-cloud-aiplatform>=1.38.0
+google-auth
+requests
