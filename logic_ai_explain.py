@@ -31,6 +31,8 @@ def _load_vertex_credentials():
 
     return True
 
+VERTEX_READY = _load_vertex_credentials()
+
 def _validate_vertex_env():
     """
     Ensures required Vertex AI environment variables exist.
