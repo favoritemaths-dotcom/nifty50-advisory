@@ -1,12 +1,9 @@
 import streamlit as st
 import json
-import os
-
 # logic_ai_explain.py
 # --------------------------------------------
 # AI Explanation Layer (Vertex Gemini + Fallback)
 # --------------------------------------------
-
 import os
 from logic_ai_provider import get_ai_provider
 from logic_ai_memory import load_memory, save_to_memory
