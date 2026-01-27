@@ -1,3 +1,9 @@
+import streamlit as st
+import json
+import os
+from google.oauth2 import service_account
+from google.cloud import aiplatform
+
 # logic_ai_explain.py
 # --------------------------------------------
 # AI Explanation Layer (Vertex Gemini + Fallback)
@@ -7,6 +13,23 @@ import os
 from logic_ai_provider import get_ai_provider
 from logic_ai_memory import load_memory, save_to_memory
 
+def _load_vertex_credentials():
+    if "vertex_ai" not in st.secrets:
+        return False
+
+    creds_dict = dict(st.secrets["vertex_ai"])
+
+    credentials = service_account.Credentials.from_service_account_info(
+        creds_dict
+    )
+
+    aiplatform.init(
+        project=creds_dict["project_id"],
+        location="us-central1",
+        credentials=credentials,
+    )
+
+    return True
 
 def _validate_vertex_env():
     """
