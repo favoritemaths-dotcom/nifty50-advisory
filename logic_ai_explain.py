@@ -37,7 +37,7 @@ def _load_vertex_credentials():
         return True
 
     except Exception as e:
-        print("Vertex init failed:", e)
+        st.error(f"Vertex init failed: {e}")
         return False
 
 
