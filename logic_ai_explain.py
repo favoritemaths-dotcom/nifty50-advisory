@@ -18,26 +18,20 @@ from logic_ai_memory import load_memory, save_to_memory
 # ==========================================
 def _load_vertex_credentials():
     try:
+        st.write("Checking secrets...")
+        st.write("Secrets keys:", list(st.secrets.keys()))
+
         if "vertex_ai" not in st.secrets:
+            st.error("vertex_ai section not found in secrets")
             return False
 
         raw_json = st.secrets["vertex_ai"]["json"]
-        creds_dict = json.loads(raw_json)
+        st.write("Secret found. Length:", len(raw_json))
 
-        credentials = service_account.Credentials.from_service_account_info(
-            creds_dict
-        )
-
-        aiplatform.init(
-            project=creds_dict["project_id"],
-            location="us-central1",
-            credentials=credentials,
-        )
-
-        return True
+        return False  # stop here for debug
 
     except Exception as e:
-        st.error(f"Vertex init failed: {e}")
+        st.error(f"Vertex debug error: {e}")
         return False
 
 
