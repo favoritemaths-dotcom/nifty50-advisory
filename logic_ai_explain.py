@@ -1,13 +1,52 @@
-import streamlit as st
-import json
 # logic_ai_explain.py
 # --------------------------------------------
 # AI Explanation Layer (Vertex Gemini + Fallback)
 # --------------------------------------------
-import os
+
+import streamlit as st
+import json
+
+from google.oauth2 import service_account
+from google.cloud import aiplatform
+
 from logic_ai_provider import get_ai_provider
 from logic_ai_memory import load_memory, save_to_memory
 
+
+# ==========================================
+# Secure Vertex Initialization
+# ==========================================
+def _load_vertex_credentials():
+    try:
+        if "vertex_ai" not in st.secrets:
+            return False
+
+        raw_json = st.secrets["vertex_ai"]["json"]
+        creds_dict = json.loads(raw_json)
+
+        credentials = service_account.Credentials.from_service_account_info(
+            creds_dict
+        )
+
+        aiplatform.init(
+            project=creds_dict["project_id"],
+            location="us-central1",
+            credentials=credentials,
+        )
+
+        return True
+
+    except Exception as e:
+        print("Vertex init failed:", e)
+        return False
+
+
+VERTEX_READY = _load_vertex_credentials()
+
+
+# ==========================================
+# AI Explanation Engine
+# ==========================================
 def ai_ask_why(
     question: str,
     recommendation: str,
@@ -23,9 +62,6 @@ def ai_ask_why(
     Senior AI explanation layer.
     Uses Vertex Gemini if available, otherwise fallback.
     """
-
-    # ✅ Validate environment early
-    _validate_vertex_env()
 
     provider = get_ai_provider()
 
@@ -89,12 +125,16 @@ Your goal is to help a disciplined investor avoid mistakes.
     return answer
 
 
+# ==========================================
+# Safe Wrapper
+# ==========================================
 def safe_ai_ask_why(**kwargs):
-    """
-    Safe wrapper for Streamlit UI.
-    """
     try:
+        if not VERTEX_READY:
+            return "⚠️ Vertex AI not configured properly."
+
         return ai_ask_why(**kwargs)
+
     except Exception as e:
         return (
             "❌ AI ERROR:\n\n"
