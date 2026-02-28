@@ -40,7 +40,7 @@ class MockAIProvider(AIProvider):
 class GeminiVertexProvider(AIProvider):
     def __init__(self):
         # Assumes aiplatform.init() already called
-        self.model = GenerativeModel("gemini-1.5-flash")
+        self.model = GenerativeModel("publishers/google/models/gemini-1.0-pro")
 
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
 
