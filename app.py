@@ -29,8 +29,8 @@ from logic_conviction_engine import conviction_check
 from logic_position_sizing import calculate_position_size
 from logic_exit_rules import exit_rules_engine
 from logic_market_kill_switch import market_kill_switch
-import os
-st.write("Gemini key loaded:", bool(os.getenv("GEMINI_API_KEY")))
+from logic_ai_explain import VERTEX_READY
+st.write("Vertex ready:", VERTEX_READY)
 
 from logic_portfolio import (
     build_portfolio,
