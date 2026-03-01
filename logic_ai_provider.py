@@ -39,16 +39,8 @@ class MockAIProvider(AIProvider):
 # ==========================================
 class GeminiVertexProvider(AIProvider):
     def __init__(self):
-
-        from vertexai.preview.generative_models import list_models
-
-        models = list_models()
-        print("AVAILABLE MODELS:")
-        for m in models:
-            print(m.name)
-
-        # Temporary model (we'll fix after seeing list)
-        self.model = GenerativeModel(models[0].name)
+        # Use stable known working model
+        self.model = GenerativeModel("gemini-1.0-pro")
         
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
 
