@@ -40,7 +40,7 @@ class MockAIProvider(AIProvider):
 class GeminiVertexProvider(AIProvider):
     def __init__(self):
         # Use stable known working model
-        self.model = GenerativeModel("gemini-1.0-pro")
+        self.model = GenerativeModel("gemini-2.5-flash")
         
     def explain_recommendation(self, *, question: str, context: Dict) -> str:
 
