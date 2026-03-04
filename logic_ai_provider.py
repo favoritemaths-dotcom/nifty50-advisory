@@ -57,6 +57,26 @@ Confidence: {rb.get('confidence')}
 Risk Profile: {rb.get('risk_profile')}
 Reasons: {rb.get('reasons')}
 Market: {rb.get('market')}
+
+Provide a structured analysis with ALL of the following sections.
+
+1. Rule-Based Facts  
+Explain what the rule engine detected.
+
+2. Independent AI Assessment  
+Give your independent judgement.
+
+3. Risks Possibly Underestimated  
+Highlight risks the rule engine might miss.
+
+4. Signals Possibly Overlooked  
+Mention additional factors worth monitoring.
+
+5. What I Would Watch Going Forward  
+Give practical investor guidance.
+
+Write full explanations under each section.
+Do NOT stop early.
 """
 
         response = self.model.generate_content(
