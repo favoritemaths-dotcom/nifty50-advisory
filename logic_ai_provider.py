@@ -83,7 +83,7 @@ Do NOT stop early.
             prompt,
             generation_config={
                 "temperature": 0.3,
-                "max_output_tokens": 1024,
+                "max_output_tokens": 1500,
             },
         )
 
