@@ -58,32 +58,37 @@ Risk Profile: {rb.get('risk_profile')}
 Reasons: {rb.get('reasons')}
 Market: {rb.get('market')}
 
-Provide a structured analysis with ALL of the following sections.
+Provide a structured analysis with ALL five sections below.
 
-1. Rule-Based Facts  
-Explain what the rule engine detected.
+IMPORTANT:
+Finish all five sections before ending the response.
 
-2. Independent AI Assessment  
-Give your independent judgement.
+Format exactly like this:
 
-3. Risks Possibly Underestimated  
-Highlight risks the rule engine might miss.
+1. Rule-Based Facts
+(analysis)
 
-4. Signals Possibly Overlooked  
-Mention additional factors worth monitoring.
+2. Independent AI Assessment
+(analysis)
 
-5. What I Would Watch Going Forward  
-Give practical investor guidance.
+3. Risks Possibly Underestimated
+(analysis)
 
-Write concise explanations for each section (4–6 sentences each).
-Ensure all five sections are completed.
+4. Signals Possibly Overlooked
+(analysis)
+
+5. What I Would Watch Going Forward
+(analysis)
+
+Keep each section concise (3-5 sentences).
+Do not stop early.
 """
 
         response = self.model.generate_content(
             prompt,
             generation_config={
                 "temperature": 0.2,
-                "max_output_tokens": 1500,
+                "max_output_tokens": 2048,
             },
         )
 
