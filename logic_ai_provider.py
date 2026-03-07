@@ -47,42 +47,60 @@ class GeminiVertexProvider(AIProvider):
         prompt = f"""
 {system_rules}
 
+You are an experienced investment advisor helping a disciplined investor.
+
 Investor Question:
 {question}
 
-Rule-Based Summary:
+===== INVESTMENT CONTEXT =====
+
 Recommendation: {rb.get('recommendation')}
 Score: {rb.get('score')}
 Confidence: {rb.get('confidence')}
 Risk Profile: {rb.get('risk_profile')}
-Reasons: {rb.get('reasons')}
-Market: {rb.get('market')}
 
-Provide a structured investment analysis with ALL sections below.
+Key Signals:
+{rb.get('reasons')}
 
-1. Rule-Based Facts
-Explain what the rule engine concluded.
+Market Regime:
+{rb.get('market')}
 
-2. AI Independent Assessment
-Give your own opinion. Do you agree with the rule engine?
+Investor Profile:
+Conservative investor focused on risk control and disciplined exits.
 
-3. Possible Weaknesses in the Rule Engine
-Identify where the rule engine may be wrong or overly conservative.
+Investment Philosophy:
+• Avoid excessive leverage
+• Prefer strong cash flow
+• Protect capital first
+• Seek sustainable growth
 
-4. Signals the Rule Engine May Be Missing
-Consider qualitative factors, industry context, or macro signals.
+===== TASK =====
 
-5. What I Would Do as an Investor
-Give practical guidance for the investor.
+Provide a structured investment analysis using the sections below.
 
-Be critical when necessary. The AI is allowed to disagree with the rule engine.
+1. Independent AI Assessment
+Provide your own unbiased view on the stock.
+
+2. Latest News & Macro Environment
+Analyze recent news, sector developments, and global macro factors.
+
+3. Risks Possibly Underestimated
+Highlight risks the rule engine may miss.
+
+4. Signals Possibly Overlooked
+Mention additional factors worth monitoring.
+
+5. What I Would Watch Going Forward
+Provide practical investor guidance.
+
+Be independent. Do not rely only on rule-based output.
 """
 
         response = self.model.generate_content(
             prompt,
             generation_config={
                 "temperature": 0.2,
-                "max_output_tokens": 2048,
+                "max_output_tokens": 4500,
             },
         )
 
