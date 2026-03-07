@@ -75,8 +75,8 @@ Mention additional factors worth monitoring.
 5. What I Would Watch Going Forward  
 Give practical investor guidance.
 
-Write full explanations under each section.
-Do NOT stop early.
+Write concise explanations for each section (4–6 sentences each).
+Ensure all five sections are completed.
 """
 
         response = self.model.generate_content(
