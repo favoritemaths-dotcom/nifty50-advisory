@@ -438,72 +438,6 @@ if not portfolio_mode:
         else:
             st.warning(f"• {bp}")
             
-# =========================================
-# ASK THE AI — WHY? (Single Stock)
-# =========================================
-if not portfolio_mode:
-    st.markdown("## 🤖 Ask the AI (Why?)")
-
-    user_question = st.text_input(
-        "Ask a question about this recommendation",
-        placeholder="e.g. Why is this a BUY?"
-    )
-
-    if AI_ENABLED:
-        if user_question:
-            cache_key = f"{stock}_{user_question}"
-
-            ai_response = safe_ai_ask_why(
-                question=user_question,
-                recommendation=rec,
-                score=score,
-                confidence=confidence,
-                reasons=reasons,
-                risk_profile=risk_profile,
-                market=market,
-                portfolio_mode=False,
-                identifier=stock
-            )
-
-            st.markdown(ai_response)
-            conviction = conviction_check(
-                rule_recommendation=rec,
-                rule_confidence=confidence,
-                ai_response=ai_response
-            )
-
-            if conviction["status"].startswith("⚠️"):
-                st.warning(f"{conviction['status']}\n\n{conviction['message']}")
-            elif conviction["status"].startswith("🟡"):
-                 st.info(f"{conviction['status']}\n\n{conviction['message']}")
-            else:
-                st.success(f"{conviction['status']}\n\n{conviction['message']}")
-    
-                sizing = calculate_position_size(
-                    total_capital=investment_amount,
-                    recommendation=rec,
-                    confidence=confidence,
-                    risk_profile=risk_profile,
-                    conviction_status="🟢 AI conviction assumed"
-                )
-
-                st.markdown("### 📐 Position Sizing Recommendation")
-
-                if sizing["amount"] == 0:
-                    st.error(sizing["note"])
-                else:
-                    st.success(
-                        f"""
-            **Suggested Allocation:** {sizing['allocation_pct']}%  
-            **Investment Amount:** ₹{sizing['amount']:,}
-
-            {sizing['note']}
-            """
-                )
-    
-    else:
-         st.info("🤖 AI is currently disabled")
-
 # -------------------------------
 # SAFE CONVICTION FALLBACK
 # -------------------------------
@@ -558,43 +492,6 @@ elif kill_switch["action"] != rec:
 else:
     st.success("✅ Market conditions acceptable for this action.")
         
-# ==============================
-# ASK THE AI — WHY? (Portfolio)
-# ==============================
-st.markdown("## 🤖 Ask the AI (Portfolio View)")
-
-portfolio_question = st.text_input(
-    "Ask a question about the portfolio decision",
-    placeholder="e.g. Why should I HOLD this portfolio?"
-)
-
-if portfolio_question:
-    ai_response = safe_ai_ask_why(
-        question=portfolio_question,
-        recommendation=portfolio_action,
-        score=portfolio_result["risk_score"],
-        confidence=portfolio_confidence,
-        reasons=portfolio_result.get("warnings", []) + portfolio_result.get("insights", []),
-        risk_profile=risk_profile,
-        market=market,
-        portfolio_mode=True,
-        identifier="portfolio"
-    )
-
-    st.markdown(ai_response)
-    conviction = conviction_check(
-        rule_recommendation=portfolio_action,
-        rule_confidence=portfolio_confidence,
-        ai_response=ai_response
-     )
-
-    if conviction["status"].startswith("⚠️"):
-        st.warning(f"{conviction['status']}\n\n{conviction['message']}")
-    elif conviction["status"].startswith("🟡"):
-        st.info(f"{conviction['status']}\n\n{conviction['message']}")
-    else:
-        st.success(f"{conviction['status']}\n\n{conviction['message']}")
-
 st.markdown("## 📋 Portfolio Composition")
 st.dataframe(pd.DataFrame(portfolio), use_container_width=True)
 
