@@ -58,30 +58,24 @@ Risk Profile: {rb.get('risk_profile')}
 Reasons: {rb.get('reasons')}
 Market: {rb.get('market')}
 
-Provide a structured analysis with ALL five sections below.
-
-IMPORTANT:
-Finish all five sections before ending the response.
-
-Format exactly like this:
+Provide a structured investment analysis with ALL sections below.
 
 1. Rule-Based Facts
-(analysis)
+Explain what the rule engine concluded.
 
-2. Independent AI Assessment
-(analysis)
+2. AI Independent Assessment
+Give your own opinion. Do you agree with the rule engine?
 
-3. Risks Possibly Underestimated
-(analysis)
+3. Possible Weaknesses in the Rule Engine
+Identify where the rule engine may be wrong or overly conservative.
 
-4. Signals Possibly Overlooked
-(analysis)
+4. Signals the Rule Engine May Be Missing
+Consider qualitative factors, industry context, or macro signals.
 
-5. What I Would Watch Going Forward
-(analysis)
+5. What I Would Do as an Investor
+Give practical guidance for the investor.
 
-Keep each section concise (3-5 sentences).
-Do not stop early.
+Be critical when necessary. The AI is allowed to disagree with the rule engine.
 """
 
         response = self.model.generate_content(
