@@ -504,28 +504,53 @@ st.markdown("---")
 st.markdown("## 🧠 Talk to Your AI Advisor")
 
 st.caption(
-    "Ask questions about risks, timing, conviction, or whether this "
-    "recommendation truly fits your profile."
+"Discuss risks, timing, conviction, or portfolio strategy with your AI advisor."
 )
 
-user_question = st.text_input(
-    "Ask your AI advisor (e.g. 'Is this too risky for me?' or 'What could go wrong?')",
-    placeholder="Type your question here..."
-)
+# Clear chat button
+if st.button("Clear Chat"):
+    st.session_state.ai_chat_history = []
+
+# Initialize chat history
+if "ai_chat_history" not in st.session_state:
+    st.session_state.ai_chat_history = []
+
+# Display chat history
+for msg in st.session_state.ai_chat_history:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Chat input
+user_question = st.chat_input("Ask your AI advisor anything...")
 
 if user_question:
-    with st.spinner("AI advisor thinking..."):
-        ai_response = safe_ai_ask_why(
-            question=user_question,
-            recommendation=rec if not portfolio_mode else portfolio_action,
-            score=score if not portfolio_mode else portfolio_result["risk_score"],
-            confidence=confidence if not portfolio_mode else portfolio_confidence,
-            reasons=reasons if not portfolio_mode else portfolio_result.get("insights", []),
-            risk_profile=risk_profile,
-            market=market.get("regime") if market else None,
-            portfolio_mode=portfolio_mode,
-            identifier=stock if not portfolio_mode else "portfolio"
-        )
 
-    st.markdown("### 🧠 AI Advisor Response")
-    st.markdown(ai_response)
+    with st.chat_message("user"):
+        st.markdown(user_question)
+
+    st.session_state.ai_chat_history.append({
+        "role": "user",
+        "content": user_question
+    })
+
+    with st.chat_message("assistant"):
+        with st.spinner("AI advisor thinking..."):
+
+            ai_response = safe_ai_ask_why(
+                question=user_question,
+                recommendation=rec if not portfolio_mode else portfolio_action,
+                score=score if not portfolio_mode else portfolio_result["risk_score"],
+                confidence=confidence if not portfolio_mode else portfolio_confidence,
+                reasons=reasons if not portfolio_mode else portfolio_result.get("warnings", []) + portfolio_result.get("insights", []),
+                risk_profile=risk_profile,
+                market=market.get("regime") if market else None,
+                portfolio_mode=portfolio_mode,
+                identifier=stock if not portfolio_mode else "portfolio"
+            )
+
+            st.markdown(ai_response)
+
+    st.session_state.ai_chat_history.append({
+        "role": "assistant",
+        "content": ai_response
+    })
