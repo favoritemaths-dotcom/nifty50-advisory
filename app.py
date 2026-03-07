@@ -465,7 +465,7 @@ if not portfolio_mode:
                 identifier=stock
             )
 
-            st.info(ai_response)
+            st.markdown(ai_response)
             conviction = conviction_check(
                 rule_recommendation=rec,
                 rule_confidence=confidence,
@@ -581,7 +581,7 @@ if portfolio_question:
         identifier="portfolio"
     )
 
-    st.write(ai_response)
+    st.markdown(ai_response)
     conviction = conviction_check(
         rule_recommendation=portfolio_action,
         rule_confidence=portfolio_confidence,
@@ -631,4 +631,4 @@ if user_question:
         )
 
     st.markdown("### 🧠 AI Advisor Response")
-    st.write(ai_response)
+    st.markdown(ai_response)
